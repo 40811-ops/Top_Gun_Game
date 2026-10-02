@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>TOP GUN ARCADE - Modern Air Combat</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,10 +12,11 @@
     <canvas id="gameCanvas" width="540" height="960"></canvas>
 
     <!-- Botões Fixos Superiores -->
-    <button id="pauseHudBtn" class="pause-btn-hud" title="Pausar Missão">⏸️</button>
-    <button id="soundToggleBtn" class="audio-btn" title="Alternar Som e Música">🔊</button>
+    <button id="pauseHudBtn" class="top-hud-btn pause-btn-hud" title="Pausar Missão">⏸️</button>
+    <button id="leaderboardHudBtn" class="top-hud-btn leader-btn-hud" title="Tabela de Recordes">🏆</button>
+    <button id="soundToggleBtn" class="top-hud-btn audio-btn" title="Alternar Som e Música">🔊</button>
 
-    <!-- Caixa de Rádio Militar Tática (Transmissões do Comandante) -->
+    <!-- Caixa de Rádio Militar Tática (Transmissões do Comandante Vanguard) -->
     <div id="militaryRadioBox" class="radio-box hidden">
       <div class="radio-avatar">
         <div class="avatar-icon">👨‍✈️</div>
@@ -31,29 +32,38 @@
 
     <!-- Controles de Toque para Mobile/Touch -->
     <div id="touch-controls">
-      <div class="touch-group">
+      <!-- Cluster Esquerdo: Esquiva (Barrel Roll) & Especial [Q] -->
+      <div class="touch-group touch-left">
+        <button id="touchRollBtn" class="touch-btn roll-btn">
+          <span>GIRO</span>
+          <small>[Shift]</small>
+        </button>
         <button id="touchSpecialBtn" class="touch-btn special-btn">
           <span>ESPECIAL</span>
-          <small id="touchSpecialLabel" style="font-size:8px;">[Q]</small>
-        </button>
-        <button id="touchFocusBtn" class="touch-btn focus-btn">
-          <span>FOCO</span>
-          <small style="font-size:8px;">[E]</small>
+          <small id="touchSpecialLabel">[Q]</small>
         </button>
       </div>
-      <div class="touch-group">
-        <button id="touchFlaresBtn" class="touch-btn flare-btn">
-          <span>Flares</span>
-          <small style="font-size:8px;">[L]</small>
+
+      <!-- Cluster Direito: Super Bomba [X] & Míssil [K] -->
+      <div class="touch-group touch-right">
+        <button id="touchBombBtn" class="touch-btn bomb-btn">
+          <span>BOMBA</span>
+          <small id="touchBombLabel">[X]</small>
         </button>
-        <button id="touchMissileBtn" class="touch-btn">
-          <span>Míssil</span>
-          <small style="font-size:8px;">[K / Shift]</small>
+        <button id="touchMissileBtn" class="touch-btn missile-btn">
+          <span>MÍSSIL</span>
+          <small id="touchMissileLabel">[K]</small>
         </button>
       </div>
+
+      <!-- Botão Mini Foco Tático (Bullet Time) -->
+      <button id="touchFocusBtn" class="touch-btn focus-btn mini-focus-btn">
+        <span>FOCO</span>
+        <small>[E]</small>
+      </button>
     </div>
 
-    <!-- TELA INICIAL (MENU, DIFICULDADE E GARAGEM) -->
+    <!-- TELA INICIAL (MENU PRINCIPAL, SELEÇÃO DE MODOS, DIFICULDADE, GARAGEM & SKINS) -->
     <div id="startScreen" class="screen-overlay">
       <h1 class="title-logo">TOP GUN</h1>
       <div class="subtitle-badge">ARCADE COMBAT EXPERT</div>
@@ -63,9 +73,24 @@
         <span id="menuGoldDisplay">0</span>
       </div>
 
-      <!-- Seletor de Dificuldade -->
+      <!-- 1. Seletor de Modo de Jogo Principal -->
+      <div class="mode-select-container">
+        <div class="section-title">🎮 Selecione o Modo de Combate</div>
+        <div class="mode-grid">
+          <button class="mode-btn active" id="modeCampaignBtn" data-mode="campaign">
+            <span class="mode-btn-title">🌟 MODO CAMPANHA</span>
+            <small class="mode-btn-desc">5 Estágios com Chefes Épicos e História</small>
+          </button>
+          <button class="mode-btn" id="modeSurvivalBtn" data-mode="survival">
+            <span class="mode-btn-title">♾️ MODO INFINITO</span>
+            <small class="mode-btn-desc">Sobrevivência Dinâmica (Muda a cada 500 pts)</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Seletor de Dificuldade -->
       <div class="difficulty-container">
-        <div class="section-title">🎯 Selecione a Dificuldade</div>
+        <div class="section-title">🎯 Nível de Dificuldade</div>
         <div class="difficulty-grid">
           <button class="diff-btn" data-diff="easy">
             Recruta
@@ -86,7 +111,7 @@
         </div>
       </div>
 
-      <!-- Garagem de Caças (Seleção) -->
+      <!-- 3. Garagem de Caças (Seleção) -->
       <div class="difficulty-container">
         <div class="section-title">✈️ Garagem: Seleção de Caça</div>
         <div class="garage-carousel" id="garageCarousel">
@@ -128,8 +153,31 @@
                 <polygon points="24,3 27,14 46,18 46,26 28,26 29,36 24,34 19,36 20,26 2,26 2,18 21,14" fill="#3e4a3d" stroke="#ff1744" stroke-width="1"/>
               </svg>
             </div>
-            <small style="font-size:8px; color:#ff1744;">GAU-8 / Napalm</small>
+            <small style="font-size:8px; color:#ff1744;">GAU-8 Avenger</small>
           </div>
+        </div>
+      </div>
+
+      <!-- 4. Seletor de Pinturas / Skins Visualmente Selecionáveis -->
+      <div class="difficulty-container">
+        <div class="section-title">🎨 Pintura da Aeronave (Skin)</div>
+        <div class="skins-grid" id="skinsGrid">
+          <button class="skin-btn active" data-skin="default">
+            <span class="skin-dot skin-dot-default"></span>
+            Padrão
+          </button>
+          <button class="skin-btn" data-skin="desert">
+            <span class="skin-dot skin-dot-desert"></span>
+            Deserto
+          </button>
+          <button class="skin-btn" data-skin="stealth">
+            <span class="skin-dot skin-dot-stealth"></span>
+            Preto Furtivo
+          </button>
+          <button class="skin-btn" data-skin="neon">
+            <span class="skin-dot skin-dot-neon"></span>
+            Néon Retro
+          </button>
         </div>
       </div>
 
@@ -154,20 +202,22 @@
 
       <!-- Controles e Dicas Rápidas -->
       <div class="info-card">
-        <h4>🕹️ Comandos Táticos</h4>
-        <p>• <span class="key-badge">WASD / Setas</span>: Movimento &nbsp;|&nbsp; <span class="key-badge">Espaço</span>: Canhão Contínuo</p>
-        <p>• <span class="key-badge">Q</span>: Habilidade Especial &nbsp;|&nbsp; <span class="key-badge">E</span>: Bullet Time (Foco Tático)</p>
-        <p>• <span class="key-badge">K / Shift</span>: Mísseis &nbsp;|&nbsp; <span class="key-badge">L</span>: Flares &nbsp;|&nbsp; <span class="key-badge">P</span>: Pausa</p>
-        <p>• <span class="key-badge">Overdrive</span>: 15 abates consecutivos ativam o super laser contínuo!</p>
+        <h4>🕹️ Manual Operacional de Voo</h4>
+        <p>• <span class="key-badge">WASD / Setas / Touch Drag</span>: Voo Suave &nbsp;|&nbsp; <span class="key-badge">Espaço</span>: Canhão Contínuo</p>
+        <p>• <span class="key-badge">Shift</span>: Giro Barrel Roll (0.5s Invulnerável) &nbsp;|&nbsp; <span class="key-badge">X</span>: Super Bomba (Limpa tela)</p>
+        <p>• <span class="key-badge">Q</span>: Especial do Caça &nbsp;|&nbsp; <span class="key-badge">E</span>: Bullet Time (Foco) &nbsp;|&nbsp; <span class="key-badge">K</span>: Mísseis</p>
+        <p>• <span class="key-badge">⚠️ Aquecimento</span>: Disparo contínuo aquece a arma. Se atingir 100%, trava por 2.5s!</p>
       </div>
 
-      <div style="display: flex; gap: 10px; width: 100%; max-width: 460px; justify-content: center; margin-bottom: 25px;">
-        <button id="openShopBtn" class="arcade-btn gold-btn" style="padding: 12px 20px; font-size: 13px;">🛠️ HANGAR DE UPGRADES</button>
-        <button id="startBtn" class="arcade-btn" style="padding: 12px 26px; font-size: 14px;">DECOLAR 🚀</button>
+      <!-- Botões de Ação do Menu -->
+      <div class="menu-action-buttons">
+        <button id="openShopBtn" class="arcade-btn gold-btn">🛠️ HANGAR DE UPGRADES</button>
+        <button id="openLeaderboardBtn" class="arcade-btn leader-btn">🏆 RECORDES</button>
+        <button id="startBtn" class="arcade-btn launch-btn">DECOLAR 🚀</button>
       </div>
     </div>
 
-    <!-- MODAL LOJA DE GARAGEM (UPGRADE SHOP) -->
+    <!-- MODAL LOJA DE GARAGEM (UPGRADE SHOP - 5 UPGRADES PERMANENTES) -->
     <div id="shopScreen" class="screen-overlay hidden">
       <h2 class="title-logo" style="font-size: 26px;">HANGAR DE UPGRADES</h2>
       <div class="subtitle-badge" style="background: linear-gradient(90deg, #ffa000, #ff6f00);">MELHORIAS PERMANENTES</div>
@@ -178,11 +228,11 @@
       </div>
 
       <div class="shop-modal">
-        <!-- Upgrade 1: Blindagem -->
+        <!-- Upgrade 1: Blindagem Reforçada -->
         <div class="shop-card">
           <div class="shop-info">
             <div class="shop-name">🛡️ Blindagem Reforçada</div>
-            <div class="shop-desc" id="armorUpgradeDesc">+10% de HP máximo por nível.</div>
+            <div class="shop-desc" id="armorUpgradeDesc">+15% de HP máximo por nível.</div>
             <div class="shop-level-pip" id="armorLevelPips"></div>
           </div>
           <button id="buyArmorBtn" class="buy-btn">
@@ -191,37 +241,50 @@
           </button>
         </div>
 
-        <!-- Upgrade 2: Dano do Canhão -->
+        <!-- Upgrade 2: Radiador de Alta Performance -->
         <div class="shop-card">
           <div class="shop-info">
-            <div class="shop-name">💥 Dano do Canhão</div>
-            <div class="shop-desc" id="damageUpgradeDesc">+12% de dano por disparo.</div>
-            <div class="shop-level-pip" id="damageLevelPips"></div>
+            <div class="shop-name">❄️ Radiador de Alta Performance</div>
+            <div class="shop-desc" id="radiatorUpgradeDesc">-15% de acúmulo de calor da arma por disparo.</div>
+            <div class="shop-level-pip" id="radiatorLevelPips"></div>
           </div>
-          <button id="buyDamageBtn" class="buy-btn">
+          <button id="buyRadiatorBtn" class="buy-btn">
             <span>UPGRADE</span>
-            <small id="damageCostText">🪙 120</small>
+            <small id="radiatorCostText">🪙 120</small>
           </button>
         </div>
 
-        <!-- Upgrade 3: Recarga de Habilidade Especial -->
+        <!-- Upgrade 3: Depósito de Munições -->
         <div class="shop-card">
           <div class="shop-info">
-            <div class="shop-name">⏱️ Recarga Especial (Tecla Q)</div>
-            <div class="shop-desc" id="specialCooldownUpgradeDesc">-10% de tempo de recarga especial.</div>
-            <div class="shop-level-pip" id="specialLevelPips"></div>
+            <div class="shop-name">💣 Depósito de Munições</div>
+            <div class="shop-desc" id="ammoUpgradeDesc">+2 Mísseis e +1 Super Bomba de capacidade.</div>
+            <div class="shop-level-pip" id="ammoLevelPips"></div>
           </div>
-          <button id="buySpecialBtn" class="buy-btn">
+          <button id="buyAmmoBtn" class="buy-btn">
             <span>UPGRADE</span>
-            <small id="specialCostText">🪙 150</small>
+            <small id="ammoCostText">🪙 140</small>
           </button>
         </div>
 
-        <!-- Upgrade 4: Íman de Peças -->
+        <!-- Upgrade 4: Propulsores Auxiliares -->
         <div class="shop-card">
           <div class="shop-info">
-            <div class="shop-name">🧲 Íman de Peças e Ouro</div>
-            <div class="shop-desc" id="magnetUpgradeDesc">Aumenta o alcance de atração magnética.</div>
+            <div class="shop-name">🔄 Propulsores Auxiliares</div>
+            <div class="shop-desc" id="thrustersUpgradeDesc">-0.4s de tempo de recarga do Barrel Roll.</div>
+            <div class="shop-level-pip" id="thrustersLevelPips"></div>
+          </div>
+          <button id="buyThrustersBtn" class="buy-btn">
+            <span>UPGRADE</span>
+            <small id="thrustersCostText">🪙 150</small>
+          </button>
+        </div>
+
+        <!-- Upgrade 5: Íman de Moedas -->
+        <div class="shop-card">
+          <div class="shop-info">
+            <div class="shop-name">🧲 Íman de Moedas e Peças</div>
+            <div class="shop-desc" id="magnetUpgradeDesc">+40px no raio de atração magnética de ouro e itens.</div>
             <div class="shop-level-pip" id="magnetLevelPips"></div>
           </div>
           <button id="buyMagnetBtn" class="buy-btn">
@@ -231,19 +294,100 @@
         </div>
       </div>
 
-      <button id="closeShopBtn" class="arcade-btn" style="margin-top: 25px; padding: 10px 30px; font-size: 13px;">VOLTAR AO HANGAR ⬅️</button>
+      <button id="closeShopBtn" class="arcade-btn" style="margin-top: 22px; padding: 10px 30px; font-size: 13px;">VOLTAR AO HANGAR ⬅️</button>
     </div>
 
-    <!-- MODAL DE SELEÇÃO DE ROTA PÓS-CHEFE -->
-    <div id="routeSelectScreen" class="screen-overlay hidden">
-      <h2 class="title-logo" style="font-size: 26px; color: #00e5ff;">VITÓRIA TÁTICA!</h2>
-      <div class="subtitle-badge" style="background: linear-gradient(90deg, #00e5ff, #0077b6);">SELEÇÃO DE ROTA DA PRÓXIMA MISSÃO</div>
-      <p style="color: #b0bec5; font-size: 12px; margin-bottom: 20px;">
-        Chefe derrotado! O Quartel-General detectou novas ameaças. Escolha seu próximo vetor de ataque:
+    <!-- MODAL DE TABELA DE RECORDES (TOP 5 LEADERBOARD) -->
+    <div id="leaderboardModal" class="screen-overlay hidden">
+      <h2 class="title-logo" style="font-size: 26px; color: #ffb300;">🏆 RECORDES TOP GUN</h2>
+      <div class="subtitle-badge" style="background: linear-gradient(90deg, #ff8f00, #ff6f00);">MODO SOBREVIVÊNCIA</div>
+
+      <div class="leaderboard-table-container">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>PONTUAÇÃO</th>
+              <th>CAÇA</th>
+              <th>ABATES</th>
+              <th>DATA</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <!-- Preenchido via script.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <button id="closeLeaderboardBtn" class="arcade-btn" style="margin-top: 25px; padding: 10px 30px; font-size: 13px;">FECHAR ✖</button>
+    </div>
+
+    <!-- TELA DE TRANSIÇÃO ENTRE ESTÁGIOS DA CAMPANHA (STAGE CLEAR) -->
+    <div id="stageClearScreen" class="screen-overlay hidden">
+      <h2 class="title-logo" style="font-size: 28px; color: #00e5ff;">ESTÁGIO CONCLUÍDO!</h2>
+      <div id="stageClearSubtitle" class="subtitle-badge" style="background: linear-gradient(90deg, #00e5ff, #0077b6);">SETOR 1 NEUTRALIZADO</div>
+
+      <div class="stage-stats-card">
+        <div class="stage-stat-row">
+          <span>Inimigos Neutralizados:</span>
+          <span id="stageKillsText" style="color: #00e5ff; font-weight: bold;">0</span>
+        </div>
+        <div class="stage-stat-row">
+          <span>Pontos Acumulados:</span>
+          <span id="stageScoreText" style="color: #ffca28; font-weight: bold;">0</span>
+        </div>
+        <div class="stage-stat-row">
+          <span>Ouro Coletado no Estágio:</span>
+          <span id="stageGoldText" style="color: #ffd54f; font-weight: bold;">0</span>
+        </div>
+        <div class="stage-stat-row">
+          <span>Bônus de Conclusão:</span>
+          <span id="stageBonusText" style="color: #00e676; font-weight: bold;">+250 🪙</span>
+        </div>
+      </div>
+
+      <div class="briefing-box">
+        <div class="briefing-header">📡 COMUNICADO DO QUARTEL-GENERAL [HQ]</div>
+        <p id="nextStageBriefingText" class="briefing-text">
+          Excelente execução tática, piloto! Reabastecimento concluído. Prepare-se para decolar em direção ao próximo setor.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 18px; width: 100%; max-width: 380px; justify-content: center;">
+        <button id="stageClearShopBtn" class="arcade-btn gold-btn" style="padding: 11px 18px; font-size: 12px;">🛠️ MELHORIAS</button>
+        <button id="nextStageBtn" class="arcade-btn" style="padding: 11px 24px; font-size: 13px;">PRÓXIMO ESTÁGIO 🚀</button>
+      </div>
+    </div>
+
+    <!-- TELA DE VITÓRIA DA CAMPANHA (CAMPAIGN VICTORY - 5 ESTÁGIOS CONCLUÍDOS) -->
+    <div id="victoryScreen" class="screen-overlay hidden">
+      <div style="font-size: 44px; margin-top: 10px;">🎖️</div>
+      <h2 class="title-logo" style="font-size: 28px; color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);">VITÓRIA DA CAMPANHA!</h2>
+      <div class="subtitle-badge" style="background: linear-gradient(90deg, #ffd700, #ff8f00); color: #000; font-weight: 900;">MISSÃO CUMPRIDA - ÁS DOS CÉUS</div>
+
+      <p style="color: #b0bec5; font-size: 13px; max-width: 420px; margin-bottom: 14px;">
+        O Caça Protótipo Furtivo "Spectre-V" foi abatido! A soberania aérea mundial foi restaurada pelo seu esquadrão!
       </p>
 
-      <div id="routeCardsContainer" class="route-cards-container">
-        <!-- Injetado dinamicamente via JS (2 opções aleatórias) -->
+      <div class="victory-honor-card">
+        <div style="color: #ffd54f; font-size: 14px; font-weight: 900; margin-bottom: 6px;">🏅 CONDECORAÇÃO DE HONRA AO MÉRITO</div>
+        <div style="font-size: 22px; font-weight: 900; color: #00e676;">+1.500 PEÇAS DE OURO</div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom: 16px;">
+        <div class="stat-box">
+          <div class="stat-label">Pontuação Final</div>
+          <div id="victoryFinalScore" class="stat-value" style="color: #00e5ff;">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Inimigos Abatidos</div>
+          <div id="victoryTotalKills" class="stat-value">0</div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 260px; margin-bottom: 20px;">
+        <button id="victoryContinueInfiniteBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: linear-gradient(135deg, #00e676, #00b0ff);">NOVO JOGO+ / INFINITO ♾️</button>
+        <button id="victoryHangarBtn" class="arcade-btn gold-btn" style="padding: 12px; font-size: 13px;">VOLTAR AO HANGAR ⬅️</button>
       </div>
     </div>
 
@@ -301,6 +445,10 @@
           <div id="goldEarnedStat" class="stat-value" style="color: #ffd54f;">0</div>
         </div>
       </div>
+
+      <p style="color: #90a4ae; font-size: 11px; margin-bottom: 14px;">
+        💡 Os upgrades e o ouro do hangar foram preservados. Na campanha, a missão recomeça no Estágio 1.
+      </p>
 
       <div style="display: flex; flex-direction: column; gap: 10px; width: 240px; margin-bottom: 20px;">
         <button id="restartBtn" class="arcade-btn" style="padding: 12px; font-size: 13px;">JOGAR NOVAMENTE ↺</button>
