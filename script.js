@@ -23,6 +23,24 @@ playerSprites.a10.src = 'assets/a10.png';
 // Alias de segurança para compatibilidade com referências a su57
 playerSprites.su57 = playerSprites.fa18;
 
+// --- CARREGAMENTO DE SPRITES DAS NAVES INIMIGAS (PIXEL ART) ---
+const enemySprites = {};
+
+enemySprites.mig21 = new Image();
+enemySprites.mig21.src = 'assets/enemies/mig21.png';
+
+enemySprites.mig29 = new Image();
+enemySprites.mig29.src = 'assets/enemies/mig29.png';
+
+enemySprites.su57 = new Image();
+enemySprites.su57.src = 'assets/enemies/su57.png';
+
+enemySprites.su35 = new Image();
+enemySprites.su35.src = 'assets/enemies/su35.png';
+
+enemySprites.b2 = new Image();
+enemySprites.b2.src = 'assets/enemies/b2.png';
+
 // --- 1. CONFIGURAÇÕES E DEFINIÇÕES DOS CAÇAS ---
 const PLANE_DATA = {
   f14: {
@@ -216,7 +234,7 @@ const STAGES = [
     id: 'ocean',
     name: 'Oceano Aberto',
     subtitle: 'SETOR 1: ÁGUAS PROFUNDAS',
-    icon: '🌊',
+    icon: '[S-01]',
     bossId: 'titan01',
     bossName: 'Titan-01',
     bossTitle: 'Fortaleza Aérea Estratégica',
@@ -231,7 +249,7 @@ const STAGES = [
     id: 'coast',
     name: 'Litoral & Praia',
     subtitle: 'SETOR 2: COSTA FORTIFICADA',
-    icon: '🏖️',
+    icon: '[S-02]',
     bossId: 'aegisBehemoth',
     bossName: 'Aegis-Behemoth',
     bossTitle: 'Cruzador Anfíbio Blindado',
@@ -246,7 +264,7 @@ const STAGES = [
     id: 'jungle',
     name: 'Selva Fechada',
     subtitle: 'SETOR 3: FLORESTA TROPICAL',
-    icon: '🌴',
+    icon: '[S-03]',
     bossId: 'jungleHawk',
     bossName: 'Jungle-Hawk',
     bossTitle: 'Super Helicóptero de Ataque',
@@ -261,12 +279,12 @@ const STAGES = [
     id: 'canyon',
     name: 'Canyon do Deserto',
     subtitle: 'SETOR 4: DESFILADEIROS ÁRIDOS',
-    icon: '🏜️',
+    icon: '[S-04]',
     bossId: 'crawlerX',
     bossName: 'Crawler-X',
     bossTitle: 'Tanque Gigante de Cerco',
     briefing: 'Tempestades de areia reduzem a visibilidade. O Tanque Gigante "Crawler-X" avança pelas fendas rochosas com artilharia pesada!',
-    nextBriefing: 'Crawler-X em chamas! O comando inimigo ativou o protótipo furtivo no espaço aéreo da Megacidade Noturna. É a batalha final!',
+    nextBriefing: 'Crawler-X em chamas! O comando inimigo ativou o bombardeiro estratégico no espaço aéreo da Megacidade Noturna. É a batalha final!',
     hazard: 'Tempestades de Areia e Rajadas',
     bossScoreTrigger: 2000,
     palette: { bg1: '#4a2c11', bg2: '#2d1808', terrain: '#8d5b28', detail: '#65401b' }
@@ -276,13 +294,13 @@ const STAGES = [
     id: 'megacity',
     name: 'Megacidade Noturna',
     subtitle: 'SETOR 5: METRÓPOLE NEON (FINAL)',
-    icon: '🌃',
-    bossId: 'spectreV',
-    bossName: 'Spectre-V',
-    bossTitle: 'Caça Protótipo Furtivo (CHEFE FINAL)',
-    briefing: 'Atenção esquadrão: Drones kamikazes detectados! O CHEFE FINAL "Spectre-V" possui invisibilidade ótica e laser contínuo!',
-    nextBriefing: 'VITÓRIA TOTAL! O Spectre-V foi abatido e a paz aérea foi restabelecida!',
-    hazard: 'Drones Kamikazes e Tráfego Aéreo',
+    icon: '[S-05]',
+    bossId: 'b2Spirit',
+    bossName: 'B-2 Spirit',
+    bossTitle: 'Bombardeiro Estratégico Stealth (CHEFE FINAL)',
+    briefing: 'Atenção esquadrão: O CHEFE FINAL Bombardeiro Stealth B-2 Spirit invadiu o espaço aéreo! Possui camuflagem ótica, lasers de fusão e poder de fogo avassalador!',
+    nextBriefing: 'VITÓRIA TOTAL! O B-2 Spirit foi abatido e a soberania aérea foi restabelecida!',
+    hazard: 'Bombardeio em Massa e Drones',
     bossScoreTrigger: 2200,
     palette: { bg1: '#0d0221', bg2: '#05010d', terrain: '#19053b', detail: '#240046' }
   }
@@ -2395,77 +2413,102 @@ class Player {
   }
 }
 
-// --- 11. INIMIGOS PADRÃO (Enemy) ---
+// --- 11. INIMIGOS PADRÃO (Enemy) COM ESCALA REALISTA E SPRITES PIXEL ART ---
 class Enemy {
   constructor(type, x, y, hpMult = 1.0) {
-    this.type = type; // 1: Caça Leve, 2: Interceptador, 3: Bombardeiro, 4: Apache, 5: Kamikaze, 6: Drone Escolta
+    // Normalização de tipos para compatibilidade com chamadas string ('mig21', 'mig29', 'su57', 'su35', 'b2') ou numéricas
+    if (typeof type === 'number') {
+      const typeMap = { 1: 'mig21', 2: 'mig29', 3: 'b2', 4: 'su35', 5: 'su57', 6: 'mig21' };
+      this.type = typeMap[type] || 'mig21';
+    } else {
+      this.type = type;
+    }
+
     this.x = x;
     this.y = y;
     this.alive = true;
     this.timer = 0;
 
-    if (type === 1) {
-      this.hp = Math.round(30 * hpMult);
+    // Escalas Corretas e Realistas (Renderização e Hitbox)
+    if (this.type === 'mig21') {
+      // 'mig21' (Inimigo Ligeiro): width: 48, height: 48
+      this.width = 48;
+      this.height = 48;
+      this.radius = 24;
+      this.hp = Math.round(40 * hpMult);
       this.maxHp = this.hp;
-      this.radius = 16;
       this.scoreVal = 100;
       this.speedY = 3.2;
       this.zigzag = Math.random() > 0.5;
       this.shootTimer = Math.random() * 0.8 + 0.8;
-    } else if (type === 2) {
-      this.hp = Math.round(85 * hpMult);
+    } else if (this.type === 'mig29') {
+      // 'mig29' (Inimigo Médio): width: 64, height: 64
+      this.width = 64;
+      this.height = 64;
+      this.radius = 32;
+      this.hp = Math.round(110 * hpMult);
       this.maxHp = this.hp;
-      this.radius = 24;
       this.scoreVal = 220;
       this.speedY = 2.4;
       this.state = 'descend';
       this.pauseTimer = 1.4;
       this.shotFired = false;
-    } else if (type === 3) {
-      this.hp = Math.round(320 * hpMult);
-      this.maxHp = this.hp;
+    } else if (this.type === 'su35') {
+      // 'su35' (Caça Pesado Flanker-E): width: 80, height: 80 - Separado explicitamente do su57
+      this.width = 80;
+      this.height = 80;
       this.radius = 40;
-      this.scoreVal = 550;
-      this.speedY = 1.0;
+      this.hp = Math.round(230 * hpMult);
+      this.maxHp = this.hp;
+      this.scoreVal = 420;
+      this.speedY = 1.6;
+      this.shootTimer = 1.2;
+    } else if (this.type === 'su57') {
+      // 'su57' (Caça Furtivo/Elite): width: 80, height: 80 - Separado explicitamente do su35
+      this.width = 80;
+      this.height = 80;
+      this.radius = 40;
+      this.hp = Math.round(280 * hpMult);
+      this.maxHp = this.hp;
+      this.scoreVal = 520;
+      this.speedY = 2.0;
+      this.shootTimer = 1.0;
+    } else if (this.type === 'b2') {
+      // 'b2' (Bombardeiro Chefe): width: 200, height: 180 (Monstro gigante na tela)
+      this.width = 200;
+      this.height = 180;
+      this.radius = 95;
+      this.hp = Math.round(850 * hpMult);
+      this.maxHp = this.hp;
+      this.scoreVal = 1400;
+      this.speedY = 0.75;
       this.salvoTimer = 1.8;
-    } else if (type === 4) {
-      this.hp = Math.round(180 * hpMult);
+    } else {
+      // Fallback de segurança com dimensões médias
+      this.width = 64;
+      this.height = 64;
+      this.radius = 32;
+      this.hp = Math.round(75 * hpMult);
       this.maxHp = this.hp;
-      this.radius = 26;
-      this.scoreVal = 400;
-      this.speedY = 1.4;
-      this.state = 'enter';
-      this.rotorAngle = 0;
-      this.shootTimer = 1.2;
-    } else if (type === 5) { // Kamikaze
-      this.hp = Math.round(45 * hpMult);
-      this.maxHp = this.hp;
-      this.radius = 15;
-      this.scoreVal = 200;
-      this.speed = 6.5;
-    } else if (type === 6) { // Drone de Apoio
-      this.hp = Math.round(40 * hpMult);
-      this.maxHp = this.hp;
-      this.radius = 14;
-      this.scoreVal = 120;
-      this.speedY = 2.8;
-      this.shootTimer = 1.2;
+      this.scoreVal = 150;
+      this.speedY = 2.0;
+      this.shootTimer = 1.4;
     }
   }
 
   update(dt, enemyBullets, playerX, playerY, mods) {
     this.timer += dt;
 
-    if (this.type === 1) {
+    if (this.type === 'mig21') {
       this.y += this.speedY * dt * 60;
       if (this.zigzag) this.x += Math.sin(this.timer * 2.5) * 2.5;
 
       this.shootTimer -= dt * mods.shootFreqMult;
       if (this.shootTimer <= 0) {
         this.shootTimer = 1.6;
-        enemyBullets.push(new EnemyBullet(this.x, this.y + 12, 0, 5.0 * mods.bulletSpeedMult));
+        enemyBullets.push(new EnemyBullet(this.x, this.y + this.height / 2, 0, 5.0 * mods.bulletSpeedMult));
       }
-    } else if (this.type === 2) {
+    } else if (this.type === 'mig29') {
       if (this.state === 'descend') {
         this.y += this.speedY * dt * 60;
         if (this.y >= 240) this.state = 'pause';
@@ -2474,106 +2517,70 @@ class Enemy {
         if (!this.shotFired && this.pauseTimer <= 0.8) {
           this.shotFired = true;
           const spd = 4.8 * mods.bulletSpeedMult;
-          enemyBullets.push(new EnemyBullet(this.x - 8, this.y + 14, -1.2, spd));
-          enemyBullets.push(new EnemyBullet(this.x + 8, this.y + 14, 1.2, spd));
+          enemyBullets.push(new EnemyBullet(this.x - 16, this.y + this.height / 2, -1.2, spd));
+          enemyBullets.push(new EnemyBullet(this.x + 16, this.y + this.height / 2, 1.2, spd));
         }
         if (this.pauseTimer <= 0) this.state = 'ascend';
       } else if (this.state === 'ascend') {
         this.y -= this.speedY * 1.3 * dt * 60;
       }
-    } else if (this.type === 3) {
+    } else if (this.type === 'su35') {
+      // Comportamento tático exclusivo do Su-35 Flanker-E: manobras amplas de superioridade aérea
+      if (this.y < 220) this.y += this.speedY * dt * 60;
+      this.x += Math.sin(this.timer * 2.0) * 2.2;
+
+      this.shootTimer -= dt * mods.shootFreqMult;
+      if (this.shootTimer <= 0) {
+        this.shootTimer = 1.3;
+        const dx = playerX - this.x;
+        const dy = playerY - this.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const spd = 5.2 * mods.bulletSpeedMult;
+        enemyBullets.push(new EnemyBullet(this.x - 20, this.y + this.height / 2, (dx / dist) * spd, (dy / dist) * spd));
+        enemyBullets.push(new EnemyBullet(this.x + 20, this.y + this.height / 2, (dx / dist) * spd, (dy / dist) * spd));
+      }
+    } else if (this.type === 'su57') {
+      // Comportamento tático exclusivo do Su-57 Felon: interceptação furtiva com mísseis guiados
+      this.y += this.speedY * dt * 60;
+      const dx = playerX - this.x;
+      this.x += Math.sign(dx) * Math.min(Math.abs(dx), 1.6 * dt * 60);
+
+      this.shootTimer -= dt * mods.shootFreqMult;
+      if (this.shootTimer <= 0) {
+        this.shootTimer = 1.1;
+        const dy = playerY - this.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const spd = 5.8 * mods.bulletSpeedMult;
+        enemyBullets.push(new EnemyBullet(this.x, this.y + this.height / 2, (dx / dist) * spd, (dy / dist) * spd, true));
+      }
+    } else if (this.type === 'b2') {
+      // Bombardeiro Chefe B-2 Spirit: avanço lento, imponente e salvas devastadoras em leque
       this.y += this.speedY * dt * 60;
       this.salvoTimer -= dt * mods.shootFreqMult;
       if (this.salvoTimer <= 0) {
         this.salvoTimer = 2.0;
-        for (let a of [-0.3, 0, 0.3]) {
-          enemyBullets.push(new EnemyBullet(this.x, this.y + 25, a * 3.5, 4.5 * mods.bulletSpeedMult));
+        for (let a of [-0.45, -0.22, 0, 0.22, 0.45]) {
+          enemyBullets.push(new EnemyBullet(this.x, this.y + this.height * 0.35, Math.sin(a) * 4.5, Math.cos(a) * 4.5 * mods.bulletSpeedMult, Math.abs(a) < 0.1));
         }
-      }
-    } else if (this.type === 4) { // Apache
-      this.rotorAngle += 25 * dt;
-      if (this.y < 180) this.y += this.speedY * dt * 60;
-      this.x += Math.sin(this.timer * 1.5) * 1.5;
-
-      this.shootTimer -= dt * mods.shootFreqMult;
-      if (this.shootTimer <= 0) {
-        this.shootTimer = 1.5;
-        const dx = playerX - this.x;
-        const dy = playerY - this.y;
-        const dist = Math.hypot(dx, dy) || 1;
-        const spd = 5.0 * mods.bulletSpeedMult;
-        enemyBullets.push(new EnemyBullet(this.x, this.y + 16, (dx / dist) * spd, (dy / dist) * spd));
-      }
-    } else if (this.type === 5) { // Kamikaze
-      const dx = playerX - this.x;
-      const dy = playerY - this.y;
-      const dist = Math.hypot(dx, dy) || 1;
-      this.x += (dx / dist) * this.speed * dt * 60;
-      this.y += (dy / dist) * this.speed * dt * 60;
-    } else if (this.type === 6) { // Drone
-      this.y += this.speedY * dt * 60;
-      this.shootTimer -= dt;
-      if (this.shootTimer <= 0) {
-        this.shootTimer = 1.4;
-        enemyBullets.push(new EnemyBullet(this.x, this.y + 10, 0, 4.8 * mods.bulletSpeedMult));
       }
     }
 
-    return this.y > -60 && this.y < 1000 && this.x > -50 && this.x < 590 && this.hp > 0;
+    // Permite que o gigante B-2 (200x180) entre suavemente pela tela
+    return this.y > -220 && this.y < 1080 && this.x > -120 && this.x < 660 && this.hp > 0;
   }
 
   draw(ctx) {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-
-    if (this.type === 1) {
-      ctx.fillStyle = '#c62828';
-      ctx.beginPath();
-      ctx.moveTo(0, 16); ctx.lineTo(16, -10); ctx.lineTo(0, -6); ctx.lineTo(-16, -10);
-      ctx.closePath();
-      ctx.fill();
-    } else if (this.type === 2) {
-      ctx.fillStyle = '#37474f';
-      ctx.strokeStyle = '#ff9100';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(0, 22); ctx.lineTo(24, -12); ctx.lineTo(0, -4); ctx.lineTo(-24, -12);
-      ctx.closePath();
-      ctx.fill(); ctx.stroke();
-    } else if (this.type === 3) {
-      ctx.fillStyle = '#263238';
-      ctx.fillRect(-38, -12, 76, 24);
-      ctx.fillStyle = '#b71c1c';
-      ctx.fillRect(-8, -20, 16, 40);
-    } else if (this.type === 4) { // Apache
-      ctx.fillStyle = '#2e7d32';
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 10, 22, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Rotores
-      ctx.save();
-      ctx.rotate(this.rotorAngle);
-      ctx.strokeStyle = '#cfd8dc';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(-28, 0); ctx.lineTo(28, 0);
-      ctx.stroke();
-      ctx.restore();
-    } else if (this.type === 5) { // Kamikaze
-      ctx.fillStyle = '#ff1744';
-      ctx.beginPath();
-      ctx.moveTo(0, 14); ctx.lineTo(10, -12); ctx.lineTo(0, -8); ctx.lineTo(-10, -12);
-      ctx.closePath();
-      ctx.fill();
-    } else if (this.type === 6) { // Drone
-      ctx.fillStyle = '#9c27b0';
-      ctx.beginPath();
-      ctx.arc(0, 0, 10, 0, Math.PI * 2);
-      ctx.fill();
+    const sprite = enemySprites[this.type];
+    // Verificação de segurança: desenha apenas se a imagem tiver sido carregada com sucesso
+    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+      ctx.drawImage(
+        sprite,
+        this.x - this.width / 2,
+        this.y - this.height / 2,
+        this.width,
+        this.height
+      );
     }
-
-    ctx.restore();
   }
 }
 
@@ -2583,15 +2590,20 @@ class Boss {
     this.canvasWidth = width;
     this.stageInfo = stageInfo;
     this.stageId = stageInfo.id;
-    this.name = stageInfo.bossName;
-    this.title = stageInfo.bossTitle;
+    this.type = 'b2'; // Tipo explicitamente definido como b2 para renderização de sprite
+    this.name = (stageInfo.stageNum === 5 || stageInfo.id === 'megacity') ? 'B-2 Spirit' : stageInfo.bossName;
+    this.title = (stageInfo.stageNum === 5 || stageInfo.id === 'megacity') ? 'Bombardeiro Estratégico Stealth (CHEFE FINAL)' : stageInfo.bossTitle;
 
     this.x = width / 2;
-    this.y = -140;
+    this.y = -180;
     this.targetY = 160;
-    this.radius = 82;
 
-    const baseHp = 2800 + (stageInfo.stageNum - 1) * 600;
+    // Escala Realista do B-2 Chefe: width: 200, height: 180, radius: 95
+    this.width = 200;
+    this.height = 180;
+    this.radius = 95;
+
+    const baseHp = 3200 + (stageInfo.stageNum - 1) * 700;
     this.maxHp = Math.round(baseHp * difficultyMods.hpMult);
     this.hp = this.maxHp;
     this.phase = 1;
@@ -2605,7 +2617,7 @@ class Boss {
     this.droneSpawnTimer = 4.0;
     this.rotorAngle = 0;
 
-    // Mecânica Furtiva do Spectre-V (Estágio 5)
+    // Mecânica Furtiva do B-2 / Spectre-V
     this.isCloaked = false;
     this.cloakTimer = 0;
     this.laserWarning = false;
@@ -2639,132 +2651,22 @@ class Boss {
       particles.addSmoke(this.x + 50, this.y + 10);
     }
 
-    // COMPORTAMENTO ESPECÍFICO DE CADA UM DOS 5 CHEFES
-    if (this.stageId === 'ocean') {
-      // 1. Fortaleza Aérea "Titan-01"
-      this.shootTimer1 -= dt * mods.shootFreqMult;
-      if (this.shootTimer1 <= 0) {
-        this.shootTimer1 = this.phase === 3 ? 0.35 : 0.45;
-        const spd = 5.5 * mods.bulletSpeedMult;
-        enemyBullets.push(new EnemyBullet(this.x - 55, this.y + 35, -0.6, spd));
-        enemyBullets.push(new EnemyBullet(this.x + 55, this.y + 35, 0.6, spd));
-      }
+    // Ataque do Chefe B-2 Spirit / Furtivo
+    this.shootTimer1 -= dt * mods.shootFreqMult;
+    if (this.shootTimer1 <= 0) {
+      this.shootTimer1 = this.phase === 3 ? 0.35 : 0.48;
+      const spd = 5.5 * mods.bulletSpeedMult;
+      enemyBullets.push(new EnemyBullet(this.x - 50, this.y + 35, -0.6, spd));
+      enemyBullets.push(new EnemyBullet(this.x + 50, this.y + 35, 0.6, spd));
+    }
 
-      if (this.phase >= 2) {
-        this.shootTimer2 -= dt * mods.shootFreqMult;
-        if (this.shootTimer2 <= 0) {
-          this.shootTimer2 = 2.4;
-          sound.playMissileLaunch();
-          enemyBullets.push(new EnemyBullet(this.x - 75, this.y + 10, -2.0, 3.8 * mods.bulletSpeedMult, true));
-          enemyBullets.push(new EnemyBullet(this.x + 75, this.y + 10, 2.0, 3.8 * mods.bulletSpeedMult, true));
-        }
-      }
-    } else if (this.stageId === 'coast') {
-      // 2. Cruzador Anfíbio "Aegis-Behemoth"
-      this.shootTimer1 -= dt * mods.shootFreqMult;
-      if (this.shootTimer1 <= 0) {
-        this.shootTimer1 = 0.55;
-        const spd = 5.0 * mods.bulletSpeedMult;
-        for (let a of [-0.4, -0.2, 0.2, 0.4]) {
-          enemyBullets.push(new EnemyBullet(this.x, this.y + 30, Math.sin(a) * spd, Math.cos(a) * spd));
-        }
-      }
-      if (this.phase >= 2) {
-        this.shootTimer2 -= dt * mods.shootFreqMult;
-        if (this.shootTimer2 <= 0) {
-          this.shootTimer2 = 2.8;
-          sound.playExplosion(false);
-          enemyBullets.push(new EnemyBullet(this.x - 60, this.y + 20, 0, 4.0 * mods.bulletSpeedMult, true));
-          enemyBullets.push(new EnemyBullet(this.x + 60, this.y + 20, 0, 4.0 * mods.bulletSpeedMult, true));
-        }
-      }
-    } else if (this.stageId === 'jungle') {
-      // 3. Super Helicóptero "Jungle-Hawk"
-      this.shootTimer1 -= dt * mods.shootFreqMult;
-      if (this.shootTimer1 <= 0) {
-        this.shootTimer1 = 0.25;
-        const dx = player.x - this.x;
-        const dy = player.y - this.y;
-        const dist = Math.hypot(dx, dy) || 1;
-        const spd = 6.2 * mods.bulletSpeedMult;
-        enemyBullets.push(new EnemyBullet(this.x, this.y + 35, (dx / dist) * spd, (dy / dist) * spd));
-      }
-      if (this.phase >= 2) {
-        this.shootTimer2 -= dt * mods.shootFreqMult;
-        if (this.shootTimer2 <= 0) {
-          this.shootTimer2 = 2.2;
-          for (let a of [-3, -1, 1, 3]) {
-            enemyBullets.push(new EnemyBullet(this.x + a * 12, this.y + 20, a * 1.2, 4.2 * mods.bulletSpeedMult));
-          }
-        }
-      }
-    } else if (this.stageId === 'canyon') {
-      // 4. Tanque Gigante "Crawler-X"
-      this.shootTimer1 -= dt * mods.shootFreqMult;
-      if (this.shootTimer1 <= 0) {
-        this.shootTimer1 = 0.45;
-        const spd = 5.2 * mods.bulletSpeedMult;
-        enemyBullets.push(new EnemyBullet(this.x - 45, this.y + 40, -1.0, spd));
-        enemyBullets.push(new EnemyBullet(this.x + 45, this.y + 40, 1.0, spd));
-      }
-      if (this.phase >= 2) {
-        this.shootTimer2 -= dt * mods.shootFreqMult;
-        if (this.shootTimer2 <= 0) {
-          this.shootTimer2 = 2.0;
-          particles.shake(10, 0.3);
-          for (let a of [-0.5, -0.25, 0, 0.25, 0.5]) {
-            enemyBullets.push(new EnemyBullet(this.x, this.y + 25, Math.sin(a) * 5.5, Math.cos(a) * 5.5));
-          }
-        }
-      }
-    } else if (this.stageId === 'megacity') {
-      // 5. CHEFE FINAL: Caça Protótipo Furtivo "Spectre-V"
-      // Padrão de Camuflagem Ótica / Invisibilidade
-      this.cloakTimer += dt;
-      if (this.cloakTimer >= 6.5) {
-        this.cloakTimer = 0;
-        this.isCloaked = !this.isCloaked;
-        if (this.isCloaked) {
-          sound.playStealth();
-          particles.addShockwave(this.x, this.y, 160, '#d500f9');
-        } else {
-          sound.playExplosion(false);
-          this.x = Math.max(120, Math.min(this.canvasWidth - 120, player.x + (Math.random() - 0.5) * 160));
-          particles.addShockwave(this.x, this.y, 180, '#00e5ff');
-        }
-      }
-
-      if (!this.isCloaked) {
-        this.shootTimer1 -= dt * mods.shootFreqMult;
-        if (this.shootTimer1 <= 0) {
-          this.shootTimer1 = 0.28;
-          const spd = 6.4 * mods.bulletSpeedMult;
-          enemyBullets.push(new EnemyBullet(this.x - 30, this.y + 25, -1.2, spd));
-          enemyBullets.push(new EnemyBullet(this.x + 30, this.y + 25, 1.2, spd));
-        }
-
-        // Feixe de Laser Contínuo Devastador (Fase 3)
-        if (this.phase === 3) {
-          this.laserTimer += dt;
-          if (this.laserTimer >= 5.0) {
-            this.laserTimer = 0;
-            this.laserWarning = false;
-            this.laserActive = false;
-          } else if (this.laserTimer >= 3.0 && !this.laserActive) {
-            this.laserWarning = false;
-            this.laserActive = true;
-            particles.shake(12, 0.4);
-          } else if (this.laserTimer >= 1.6 && !this.laserWarning && !this.laserActive) {
-            this.laserWarning = true;
-            sound.playLaserCharge();
-          }
-
-          if (this.laserActive) {
-            particles.shake(5, 0.1);
-            if (Math.abs(player.x - this.x) < this.laserWidth / 2 + 10 && player.y > this.y) {
-              player.takeDamage(1.6, particles, mods.playerDamageMult);
-            }
-          }
+    if (this.phase >= 2) {
+      this.shootTimer2 -= dt * mods.shootFreqMult;
+      if (this.shootTimer2 <= 0) {
+        this.shootTimer2 = 2.2;
+        sound.playMissileLaunch();
+        for (let a of [-0.4, -0.2, 0, 0.2, 0.4]) {
+          enemyBullets.push(new EnemyBullet(this.x, this.y + 30, Math.sin(a) * 4.8, Math.cos(a) * 4.8 * mods.bulletSpeedMult, Math.abs(a) < 0.1));
         }
       }
     }
@@ -2776,83 +2678,43 @@ class Boss {
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    // Laser do Spectre-V
+    // Laser de Alerta e Disparo
     if (this.laserWarning) {
-      ctx.fillStyle = 'rgba(255, 23, 68, 0.22)';
+      ctx.fillStyle = 'rgba(255, 0, 51, 0.22)';
       ctx.fillRect(-this.laserWidth / 2, 35, this.laserWidth, 900);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.strokeStyle = 'rgba(0, 255, 255, 0.6)';
       ctx.strokeRect(-this.laserWidth / 2, 35, this.laserWidth, 900);
     }
 
     if (this.laserActive) {
-      ctx.fillStyle = 'rgba(255, 23, 68, 0.8)';
-      ctx.shadowColor = '#ff1744';
+      ctx.fillStyle = 'rgba(255, 0, 51, 0.85)';
+      ctx.shadowColor = '#FF0033';
       ctx.shadowBlur = 20;
       ctx.fillRect(-this.laserWidth / 2, 35, this.laserWidth, 900);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(-this.laserWidth / 4, 35, this.laserWidth / 2, 900);
     }
 
-    // Camuflagem Ótica do Spectre-V
+    // Camuflagem Ótica
     if (this.isCloaked) {
       ctx.globalAlpha = 0.25;
-      ctx.shadowColor = '#d500f9';
+      ctx.shadowColor = '#00ffff';
       ctx.shadowBlur = 18;
     }
 
-    const bossGrad = ctx.createLinearGradient(-90, 0, 90, 0);
-    if (this.stageId === 'canyon') {
-      bossGrad.addColorStop(0, '#5d4037'); bossGrad.addColorStop(0.5, '#8d6e63'); bossGrad.addColorStop(1, '#5d4037');
-    } else if (this.stageId === 'megacity') {
-      bossGrad.addColorStop(0, '#120024'); bossGrad.addColorStop(0.5, '#311b92'); bossGrad.addColorStop(1, '#120024');
-    } else if (this.stageId === 'jungle') {
-      bossGrad.addColorStop(0, '#1b3b22'); bossGrad.addColorStop(0.5, '#2d6a4f'); bossGrad.addColorStop(1, '#1b3b22');
-    } else {
-      bossGrad.addColorStop(0, '#102a43'); bossGrad.addColorStop(0.5, '#334e68'); bossGrad.addColorStop(1, '#102a43');
+    // RENDERIZAÇÃO REALISTA DO CHEFE B-2 SPIRIT (width: 200, height: 180)
+    // Sem fallback de silhueta geométrica ou retângulos!
+    const bossSprite = enemySprites['b2'] || enemySprites[this.type];
+    if (bossSprite && bossSprite.complete && bossSprite.naturalWidth > 0) {
+      ctx.drawImage(
+        bossSprite,
+        -this.width / 2,
+        -this.height / 2,
+        this.width,
+        this.height
+      );
     }
 
-    ctx.fillStyle = bossGrad;
-    ctx.strokeStyle = this.stageId === 'megacity' ? '#e040fb' : (this.stageId === 'canyon' ? '#ff9100' : '#00e5ff');
-    ctx.lineWidth = 2;
-
-    // Silhueta do Chefe
-    ctx.beginPath();
-    ctx.moveTo(0, 48);
-    ctx.lineTo(25, 28);
-    ctx.lineTo(95, 10);
-    ctx.lineTo(85, -25);
-    ctx.lineTo(30, -18);
-    ctx.lineTo(0, -35);
-    ctx.lineTo(-30, -18);
-    ctx.lineTo(-85, -25);
-    ctx.lineTo(-95, 10);
-    ctx.lineTo(-25, 28);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Rotores duplos giratórios do Jungle-Hawk
-    if (this.stageId === 'jungle') {
-      ctx.save();
-      ctx.rotate(this.rotorAngle);
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(-60, 0); ctx.lineTo(60, 0);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Reator Central
-    ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI * 2);
-    const reactorColor = this.phase === 3 ? '#ff1744' : (this.phase === 2 ? '#ffb300' : '#00e5ff');
-    ctx.fillStyle = reactorColor;
-    ctx.shadowColor = reactorColor;
-    ctx.shadowBlur = 15;
-    ctx.fill();
-
-    ctx.restore();
   }
 }
 
@@ -3033,21 +2895,34 @@ class EnemyManager {
     this.nextSurvivalBossScore = 2500;
   }
 
+  spawnEnemy(type, x, y, hpMult = 1.0) {
+    const enemy = new Enemy(type, x, y, hpMult);
+    this.enemies.push(enemy);
+    return enemy;
+  }
+
   spawnWave(score, difficultyMods, stageNum = 1) {
     const r = Math.random();
-    const x = Math.random() * (this.width - 120) + 60;
+    const x = Math.random() * (this.width - 160) + 80;
     const hpMult = difficultyMods.hpMult;
 
-    if (stageNum >= 3 && r < 0.20) {
-      this.enemies.push(new Enemy(4, x, -50, hpMult)); // Apache
-    } else if (stageNum >= 4 && r < 0.38) {
-      this.enemies.push(new Enemy(5, x, -30, hpMult)); // Kamikaze
-    } else if (score > 600 && r < 0.55) {
-      this.enemies.push(new Enemy(3, x, -50, hpMult)); // Bombardeiro
-    } else if (score > 250 && r < 0.78) {
-      this.enemies.push(new Enemy(2, x, -40, hpMult)); // Interceptador
+    // Escala Realista e distribuição dinâmica das 5 naves geradas:
+    // mig21 (Ligeiro: 48x48), mig29 (Médio: 64x64), su35 / su57 (Pesados: 80x80), b2 (Chefe Gigante: 200x180)
+    if ((stageNum >= 4 || score > 2200) && r < 0.14) {
+      // B-2 Spirit: Bombardeiro Chefe Gigante (ocupa grande área da tela com 200x180)
+      this.spawnEnemy('b2', Math.min(Math.max(x, 110), this.width - 110), -120, hpMult);
+    } else if ((stageNum >= 3 || score > 1300) && r < 0.35) {
+      // Su-57 Felon: Caça Furtivo/Elite de 5ª Geração (80x80)
+      this.spawnEnemy('su57', x, -55, hpMult);
+    } else if ((stageNum >= 2 || score > 600) && r < 0.58) {
+      // Su-35 Flanker-E: Caça Pesado de Superioridade Aérea (80x80)
+      this.spawnEnemy('su35', x, -55, hpMult);
+    } else if (score > 200 && r < 0.80) {
+      // MiG-29: Caça Médio Interceptador (64x64)
+      this.spawnEnemy('mig29', x, -45, hpMult);
     } else {
-      this.enemies.push(new Enemy(1, x, -30, hpMult)); // Leve
+      // MiG-21: Caça Ligeiro Ágil (48x48)
+      this.spawnEnemy('mig21', x, -35, hpMult);
     }
   }
 
@@ -3075,11 +2950,20 @@ class EnemyManager {
         : score >= currentStageInfo.bossScoreTrigger;
       if (shouldSpawnBoss) {
         this.boss = new Boss(this.width, this.height, difficultyMods, currentStageInfo);
+        // Garante explicitamente que no Modo Infinito ou Fase 5 seja o B-2 Spirit
+        if (isSurvivalMode || currentStageInfo.stageNum === 5) {
+          this.boss.type = 'b2';
+          this.boss.name = 'B-2 Spirit';
+          this.boss.title = 'Bombardeiro Estratégico Stealth (CHEFE FINAL)';
+          this.boss.width = 200;
+          this.boss.height = 180;
+          this.boss.radius = 95;
+        }
         if (isSurvivalMode) {
           this.nextSurvivalBossScore = Math.max(score + 2500, Math.floor(score / 2500 + 1) * 2500);
         }
         sound.playWarning();
-        uiController.triggerRadio(`ALERTA: Assinatura do Chefe ${this.boss.name} detectada no radar!`);
+        uiController.triggerRadio(`ALERTA: Assinatura do Chefe ${this.boss.name.toUpperCase()} detectada no radar!`);
       }
     }
 
@@ -3107,11 +2991,13 @@ class EnemyManager {
       const keep = e.update(dt, this.enemyBullets, player.x, player.y, difficultyMods);
       if (!keep || e.hp <= 0) {
         if (e.hp <= 0) {
-          particles.addExplosion(e.x, e.y, e.type === 3 ? 35 : 18, e.type === 3);
-          const coinCount = e.type === 3 ? 5 : (e.type === 4 ? 4 : (e.type === 2 ? 3 : 1));
+          const isHeavy = e.type === 'b2';
+          const isMediumHeavy = e.type === 'su57' || e.type === 'su35';
+          particles.addExplosion(e.x, e.y, isHeavy ? 55 : (isMediumHeavy ? 30 : 18), isHeavy);
+          const coinCount = isHeavy ? 8 : (isMediumHeavy ? 4 : (e.type === 'mig29' ? 3 : 1));
           this.dropCoins(e.x, e.y, coinCount);
 
-          player.focus = Math.min(player.focusMax, player.focus + 12);
+          player.focus = Math.min(player.focusMax, player.focus + (isHeavy ? 25 : 12));
           player.killsWithoutDamage++;
 
           if (player.killsWithoutDamage >= 15 && !player.overdriveActive) {
@@ -3121,7 +3007,7 @@ class EnemyManager {
             uiController.triggerRadio('PILOTO, OVERDRIVE OPERACIONAL! FOGO TOTAL À VONTADE!');
           }
 
-          if (Math.random() < 0.28) {
+          if (isHeavy || Math.random() < 0.28) {
             this.dropPowerUp(e.x, e.y);
           }
         }
@@ -3148,10 +3034,16 @@ class EnemyManager {
     }
   }
 
+  drawEnemies(ctx) {
+    for (let e of this.enemies) {
+      e.draw(ctx);
+    }
+  }
+
   draw(ctx) {
     for (let c of this.coins) c.draw(ctx);
     for (let p of this.powerups) p.draw(ctx);
-    for (let e of this.enemies) e.draw(ctx);
+    this.drawEnemies(ctx);
     if (this.boss) this.boss.draw(ctx);
     for (let b of this.enemyBullets) b.draw(ctx);
   }
@@ -3287,7 +3179,7 @@ class GameEngine {
     this.soundBtn.addEventListener('click', () => {
       sound.init();
       const isMuted = sound.toggleMute();
-      this.soundBtn.innerText = isMuted ? '🔇' : '🔊';
+      this.soundBtn.innerText = isMuted ? '[ AUDIO: OFF ]' : '[ AUDIO: ON ]';
     });
 
     document.getElementById('toggleMusicBtn').addEventListener('click', (e) => {
@@ -3521,7 +3413,7 @@ class GameEngine {
   renderLeaderboard() {
     const tbody = document.getElementById('leaderboardBody');
     tbody.innerHTML = '';
-    const medals = ['🥇', '🥈', '🥉', '4º', '5º'];
+    const medals = ['#01', '#02', '#03', '#04', '#05'];
 
     this.leaderboard.forEach((entry, i) => {
       const tr = document.createElement('tr');
@@ -3802,8 +3694,13 @@ class GameEngine {
       if (enemy.hp > 0) {
         const dist = Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y);
         if (dist < this.player.radius + enemy.radius) {
-          this.player.takeDamage(enemy.type === 5 ? 45 : 30, this.particles, diffMods.playerDamageMult, this.ui);
-          enemy.hp = 0;
+          const dmg = enemy.type === 'b2' ? 65 : (enemy.type === 'su57' || enemy.type === 'su35' ? 45 : 30);
+          this.player.takeDamage(dmg, this.particles, diffMods.playerDamageMult, this.ui);
+          if (enemy.type === 'b2') {
+            enemy.hp -= 200;
+          } else {
+            enemy.hp = 0;
+          }
           this.combo = 1;
           if (this.player.hp <= 0) {
             this.particles.addExplosion(this.player.x, this.player.y, 50, true);
@@ -3936,160 +3833,233 @@ class GameEngine {
 
   drawHUD() {
     const ctx = this.ctx;
+    ctx.save();
 
-    // Fundo Superior do HUD
-    ctx.fillStyle = 'rgba(5, 15, 28, 0.88)';
-    ctx.fillRect(0, 0, this.width, 74);
-    ctx.strokeStyle = 'rgba(0, 229, 255, 0.35)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(0, 0, this.width, 74);
+    // ==========================================
+    // 1. MIRA TÁTICA CENTRAL (CROSSHAIR HUD DE CAÇA TOP GUN)
+    // ==========================================
+    const cx = this.width / 2;
+    const cy = this.height / 2 - 30;
 
-    // 1. Barra de Vida / Escudo (Top Left)
-    ctx.fillStyle = '#90a4ae';
-    ctx.font = 'bold 9px monospace';
-    ctx.fillText(`ESCUDO [${this.player.data.name.split(' ')[0]}]`, 16, 14);
+    // Círculo Central Fino
+    ctx.strokeStyle = 'rgba(0, 255, 0, 0.42)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 24, 0, Math.PI * 2);
+    ctx.stroke();
 
-    const hpBarW = 105;
-    const hpPct = Math.max(0, this.player.hp / this.player.maxHp);
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(16, 17, hpBarW, 8);
+    // Ponto Central Pipper de Mira
+    ctx.fillStyle = 'rgba(0, 255, 255, 0.75)';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+    ctx.fill();
 
-    const hpGrad = ctx.createLinearGradient(16, 0, 16 + hpBarW, 0);
-    if (hpPct > 0.5) { hpGrad.addColorStop(0, '#00e676'); hpGrad.addColorStop(1, '#00e5ff'); }
-    else if (hpPct > 0.25) { hpGrad.addColorStop(0, '#ff9100'); hpGrad.addColorStop(1, '#ffeb3b'); }
-    else { hpGrad.addColorStop(0, '#d50000'); hpGrad.addColorStop(1, '#ff1744'); }
-    ctx.fillStyle = hpGrad;
-    ctx.fillRect(16, 17, hpBarW * hpPct, 8);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-    ctx.strokeRect(16, 17, hpBarW, 8);
+    // Linhas Tracejadas Laterais de Horizonte Artificial Tático
+    ctx.strokeStyle = 'rgba(0, 255, 0, 0.35)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.moveTo(cx - 95, cy);
+    ctx.lineTo(cx - 32, cy);
+    ctx.moveTo(cx + 32, cy);
+    ctx.lineTo(cx + 95, cy);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 9px monospace';
-    ctx.fillText(`${Math.ceil(this.player.hp)} HP`, 126, 24);
+    // Colchetes Angulares [ ] de Travamento Radar (Lock-on Brackets)
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.55)';
+    ctx.lineWidth = 1.4;
+    const bW = 54;
+    const bH = 32;
+    const bL = 10;
+    // Colchete Esquerdo [
+    ctx.beginPath();
+    ctx.moveTo(cx - bW + bL, cy - bH);
+    ctx.lineTo(cx - bW, cy - bH);
+    ctx.lineTo(cx - bW, cy + bH);
+    ctx.lineTo(cx - bW + bL, cy + bH);
+    ctx.stroke();
+    // Colchete Direito ]
+    ctx.beginPath();
+    ctx.moveTo(cx + bW - bL, cy - bH);
+    ctx.lineTo(cx + bW, cy - bH);
+    ctx.lineTo(cx + bW, cy + bH);
+    ctx.lineTo(cx + bW - bL, cy + bH);
+    ctx.stroke();
 
-    // 2. Barra de Calor da Arma (Overheat System)
-    const heatBarW = 105;
-    const heatPct = Math.min(1.0, this.player.heat / 100);
-
-    ctx.fillStyle = this.player.overheated ? '#ff1744' : '#ffb74d';
-    ctx.font = 'bold 9px monospace';
-    if (this.player.overheated) {
-      const flash = Math.floor(Date.now() / 140) % 2 === 0;
-      ctx.fillText(flash ? `⚠️ SUPERAQUECIDO! (${this.player.overheatTimer.toFixed(1)}s)` : '', 16, 36);
-    } else {
-      ctx.fillText(`CALOR ARMA: ${Math.round(this.player.heat)}%`, 16, 36);
-    }
-
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(16, 40, heatBarW, 7);
-
-    const heatGrad = ctx.createLinearGradient(16, 0, 16 + heatBarW, 0);
-    heatGrad.addColorStop(0, '#00e5ff');
-    heatGrad.addColorStop(0.7, '#ffea00');
-    heatGrad.addColorStop(1, '#ff1744');
-    ctx.fillStyle = this.player.overheated ? '#ff1744' : heatGrad;
-    ctx.fillRect(16, 40, heatBarW * heatPct, 7);
-    ctx.strokeStyle = this.player.overheated ? '#ff1744' : 'rgba(255, 179, 0, 0.5)';
-    ctx.strokeRect(16, 40, heatBarW, 7);
-
-    // Moedas e Estágio / Setor
-    ctx.fillStyle = '#ffd54f';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText(`🪙 ${this.sessionGold}`, 16, 62);
-
-    ctx.fillStyle = '#80deea';
-    ctx.font = '9px monospace';
-    if (this.gameMode === 'campaign') {
-      ctx.fillText(`ESTÁGIO ${this.currentStageInfo.stageNum}/5: ${this.currentStageInfo.name.toUpperCase()}`, 70, 62);
-    } else {
-      ctx.fillText(`INFINITO: ${this.currentStageInfo.name.toUpperCase()}`, 70, 62);
-    }
-
-    // 3. Pontuação e Recorde (Centro)
+    // Marcador Tático Superior da Mira
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.45)';
+    ctx.font = 'bold 8px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#00e5ff';
-    ctx.font = '900 19px monospace';
-    ctx.fillText(this.score.toString().padStart(6, '0'), this.width / 2, 23);
+    ctx.fillText('RADAR LOCK', cx, cy - 36);
 
-    ctx.fillStyle = '#ffb300';
-    ctx.font = 'bold 9px monospace';
-    ctx.fillText(`HI: ${this.highScore.toString().padStart(6, '0')}`, this.width / 2, 36);
+    // ==========================================
+    // 2. FAIXAS E MOLDURAS MILITARES DO HUD
+    // ==========================================
+    // Moldura Superior Translúcida
+    ctx.fillStyle = 'rgba(5, 12, 10, 0.88)';
+    ctx.fillRect(0, 0, this.width, 82);
+    ctx.strokeStyle = '#00FF00';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(0, 0, this.width, 82);
 
-    if (this.combo > 1) {
-      ctx.fillStyle = '#ffea00';
-      ctx.font = 'bold 11px monospace';
-      ctx.fillText(`COMBO x${this.combo.toFixed(1)}`, this.width / 2, 51);
-    }
+    // Moldura Inferior Translúcida
+    ctx.fillStyle = 'rgba(5, 12, 10, 0.88)';
+    ctx.fillRect(0, this.height - 76, this.width, 76);
+    ctx.strokeStyle = '#00FF00';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(0, this.height - 76, this.width, 76);
 
-    if (this.player.overdriveActive) {
-      ctx.fillStyle = '#ff3d00';
-      ctx.font = '900 10px monospace';
-      ctx.fillText('🔥 OVERDRIVE ATIVO! 🔥', this.width / 2, 67);
-    }
-
-    // 4. Recursos e Habilidades de Combate (Top Right)
-    ctx.textAlign = 'right';
-
-    // Mísseis e Bombas
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText(`💣 BOMBAS: ${this.player.bombs} | 🚀 ${this.player.missiles}`, this.width - 16, 16);
-
-    // Barrel Roll / Giro
-    if (this.player.rollCooldown <= 0) {
-      ctx.fillStyle = '#00e5ff';
-      ctx.fillText('🔄 GIRO [Shift]: PRONTO', this.width - 16, 30);
-    } else {
-      ctx.fillStyle = '#78909c';
-      ctx.fillText(`🔄 GIRO: ${this.player.rollCooldown.toFixed(1)}s`, this.width - 16, 30);
-    }
-
-    // Especial [Q]
-    if (this.player.specialCooldown <= 0) {
-      ctx.fillStyle = '#00e676';
-      ctx.fillText('⚡ Q: PRONTO!', this.width - 16, 44);
-    } else {
-      ctx.fillStyle = '#d500f9';
-      ctx.fillText(`⚡ Q: ${this.player.specialCooldown.toFixed(1)}s`, this.width - 16, 44);
-    }
-
-    ctx.fillStyle = '#00e5ff';
-    ctx.font = '10px monospace';
-    ctx.fillText(`CANHÃO LV.${this.player.weaponLevel}`, this.width - 16, 58);
-
+    // ==========================================
+    // 3. CANTO SUPERIOR ESQUERDO: PONTUAÇÃO & FASE
+    // ==========================================
     ctx.textAlign = 'left';
+    ctx.fillStyle = '#00FF00';
+    ctx.font = 'bold 11px "Courier New", monospace';
+    ctx.fillText('[ PONTUAÇÃO ]', 18, 22);
 
-    // 5. Barra Segmentada de Vida do Chefe
+    ctx.fillStyle = '#00FFFF';
+    ctx.font = 'bold 18px "Courier New", monospace';
+    ctx.fillText(this.score.toString().padStart(6, '0'), 18, 42);
+
+    ctx.fillStyle = '#00FF00';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.fillText('[ FASE ]', 18, 59);
+
+    ctx.fillStyle = '#00FFFF';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    const rawStageName = this.currentStageInfo.name.toUpperCase();
+    const phaseText = this.gameMode === 'campaign' ? `CAMPANHA: ${rawStageName}` : `INFINITO: ${rawStageName}`;
+    ctx.fillText(phaseText, 18, 73);
+
+    // ==========================================
+    // 4. CANTO SUPERIOR DIREITO: MODO & STATUS
+    // ==========================================
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#00FF00';
+    ctx.font = 'bold 11px "Courier New", monospace';
+    ctx.fillText('[ MODO ]', this.width - 18, 22);
+
+    ctx.fillStyle = '#00FFFF';
+    ctx.font = 'bold 15px "Courier New", monospace';
+    const modeText = this.gameMode === 'campaign' ? 'CAMPANHA' : 'INFINITO';
+    ctx.fillText(modeText, this.width - 18, 41);
+
+    ctx.fillStyle = '#00FF00';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.fillText('[ RECURSOS ]', this.width - 18, 59);
+
+    ctx.fillStyle = '#00FFFF';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.fillText(`${this.sessionGold} PTS | HI: ${this.highScore.toString().padStart(6, '0')}`, this.width - 18, 73);
+
+    // Indicadores Centrais de Desempenho (Combo / Overdrive)
+    if (this.combo > 1) {
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#00FF00';
+      ctx.font = 'bold 12px "Courier New", monospace';
+      ctx.fillText(`COMBO x${this.combo.toFixed(1)}`, this.width / 2, 28);
+    }
+    if (this.player.overdriveActive) {
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#FF0033';
+      ctx.font = 'bold 11px "Courier New", monospace';
+      ctx.fillText('OVERDRIVE OPERACIONAL', this.width / 2, 48);
+    }
+
+    // ==========================================
+    // 5. CANTO INFERIOR ESQUERDO: ARMA & SUPERAQUECIMENTO
+    // ==========================================
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#00FF00';
+    ctx.font = 'bold 11px "Courier New", monospace';
+    ctx.fillText('[ ARMA ]', 18, this.height - 56);
+
+    let gunName = 'CANHÃO GAU-8';
+    if (this.player.data.id === 'f14') gunName = 'CANHÃO M61 VULCAN';
+    else if (this.player.data.id === 'f22') gunName = 'CANHÃO M61A2 PLASMA';
+    else if (this.player.data.id === 'fa18') gunName = 'CANHÃO M61 20MM';
+    else if (this.player.data.id === 'a10') gunName = 'CANHÃO GAU-8';
+
+    if (this.player.overheated) {
+      // Texto 'SUPERAQUECIDO!' em Vermelho Neon se arma estiver em cooldown/superaquecida
+      ctx.fillStyle = '#FF0033';
+      ctx.font = 'bold 13px "Courier New", monospace';
+      ctx.fillText('SUPERAQUECIDO!', 18, this.height - 38);
+
+      ctx.fillStyle = '#FF0033';
+      ctx.font = 'bold 10px "Courier New", monospace';
+      ctx.fillText(`REINICIALIZANDO: ${this.player.overheatTimer.toFixed(1)}S`, 18, this.height - 20);
+    } else {
+      ctx.fillStyle = '#00FFFF';
+      ctx.font = 'bold 12px "Courier New", monospace';
+      ctx.fillText(gunName, 18, this.height - 38);
+
+      ctx.fillStyle = this.player.heat > 75 ? '#FF0033' : '#00FF00';
+      ctx.font = 'bold 10px "Courier New", monospace';
+      ctx.fillText(`TEMPERATURA: ${Math.round(this.player.heat)}%`, 18, this.height - 20);
+    }
+
+    // ==========================================
+    // 6. CANTO INFERIOR DIREITO: BLINDAGEM & MÍSSEIS
+    // ==========================================
+    ctx.textAlign = 'right';
+    const hpPct = Math.max(0, this.player.hp / this.player.maxHp);
+    const totalBlocks = 10;
+    const filledBlocks = Math.min(totalBlocks, Math.max(0, Math.round(hpPct * totalBlocks)));
+    const emptyBlocks = totalBlocks - filledBlocks;
+    const blockStr = '■'.repeat(filledBlocks) + '□'.repeat(emptyBlocks);
+    const pctStr = `${Math.round(hpPct * 100)}%`;
+
+    ctx.fillStyle = '#00FF00';
+    ctx.font = 'bold 11px "Courier New", monospace';
+    ctx.fillText('[ BLINDAGEM ]', this.width - 18, this.height - 56);
+
+    ctx.fillStyle = hpPct > 0.3 ? '#00FFFF' : '#FF0033';
+    ctx.font = 'bold 12px "Courier New", monospace';
+    ctx.fillText(`[${blockStr}] ${pctStr}`, this.width - 18, this.height - 38);
+
+    ctx.fillStyle = '#00FF00';
+    ctx.font = 'bold 11px "Courier New", monospace';
+    let missilePips = '';
+    if (this.player.missiles > 0) {
+      missilePips = '> '.repeat(Math.min(6, this.player.missiles)).trim();
+    } else {
+      missilePips = 'ESGOTADO';
+    }
+    ctx.fillText(`MÍSSEIS: [ ${missilePips} ]`, this.width - 18, this.height - 20);
+
+    // ==========================================
+    // 7. BARRA SEGMENTADA TÁTICA DO CHEFE
+    // ==========================================
     const boss = this.enemyMgr.boss;
     if (boss && boss.hp > 0) {
       const bossBarW = 340;
       const bx = (this.width - bossBarW) / 2;
-      const by = 84;
+      const by = 90;
       const bPct = Math.max(0, boss.hp / boss.maxHp);
+      const bTotal = 20;
+      const bFilled = Math.min(bTotal, Math.max(0, Math.round(bPct * bTotal)));
+      const bEmpty = bTotal - bFilled;
+      const bBlockStr = '■'.repeat(bFilled) + '□'.repeat(bEmpty);
 
-      ctx.fillStyle = 'rgba(5, 15, 28, 0.9)';
-      ctx.fillRect(bx - 10, by - 6, bossBarW + 20, 32);
-      ctx.strokeStyle = '#ff1744';
-      ctx.strokeRect(bx - 10, by - 6, bossBarW + 20, 32);
-
-      ctx.fillStyle = '#ff1744';
-      ctx.font = 'bold 10px monospace';
-      ctx.fillText(`⚠️ ${boss.name.toUpperCase()} [${boss.title}]`, bx, by + 5);
-
-      ctx.fillStyle = 'rgba(0,0,0,0.7)';
-      ctx.fillRect(bx, by + 10, bossBarW, 10);
-
-      ctx.fillStyle = boss.phase === 3 ? '#ff1744' : (boss.phase === 2 ? '#ff9100' : '#00e5ff');
-      ctx.fillRect(bx, by + 10, bossBarW * bPct, 10);
-
-      // 3 Segmentos Visíveis
-      ctx.strokeStyle = '#ffffff';
+      ctx.fillStyle = 'rgba(5, 12, 10, 0.92)';
+      ctx.fillRect(bx - 12, by - 4, bossBarW + 24, 38);
+      ctx.strokeStyle = '#FF0033';
       ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(bx + bossBarW * 0.33, by + 10); ctx.lineTo(bx + bossBarW * 0.33, by + 20);
-      ctx.moveTo(bx + bossBarW * 0.66, by + 10); ctx.lineTo(bx + bossBarW * 0.66, by + 20);
-      ctx.stroke();
+      ctx.strokeRect(bx - 12, by - 4, bossBarW + 24, 38);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#FF0033';
+      ctx.font = 'bold 11px "Courier New", monospace';
+      ctx.fillText(`[ ALVO PRIORITÁRIO: ${boss.name.toUpperCase()} ]`, this.width / 2, by + 12);
+
+      ctx.fillStyle = '#00FFFF';
+      ctx.font = 'bold 11px "Courier New", monospace';
+      ctx.fillText(`[${bBlockStr}] ${Math.round(bPct * 100)}%`, this.width / 2, by + 27);
     }
+
+    ctx.restore();
   }
 
   render() {
