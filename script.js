@@ -5,6 +5,24 @@
  * Controles de Toque com Interpolação Lerp, Sistema de Aquecimento, Barrel Roll, Super Bomba e Skins
  */
 
+// --- CARREGAMENTO DE SPRITES DAS NAVES DO JOGADOR (PIXEL ART) ---
+const playerSprites = {};
+
+playerSprites.f14 = new Image();
+playerSprites.f14.src = 'assets/f14.png';
+
+playerSprites.f22 = new Image();
+playerSprites.f22.src = 'assets/f22.png';
+
+playerSprites.fa18 = new Image();
+playerSprites.fa18.src = 'assets/fa18.png';
+
+playerSprites.a10 = new Image();
+playerSprites.a10.src = 'assets/a10.png';
+
+// Alias de segurança para compatibilidade com referências a su57
+playerSprites.su57 = playerSprites.fa18;
+
 // --- 1. CONFIGURAÇÕES E DEFINIÇÕES DOS CAÇAS ---
 const PLANE_DATA = {
   f14: {
@@ -37,20 +55,20 @@ const PLANE_DATA = {
     statDamage: 85,
     desc: 'Dominador aéreo de 5ª geração com canhões de plasma. Especial [Q]: Camuflagem Furtiva (4s invulnerável + dobro de velocidade de tiro).'
   },
-  su57: {
-    id: 'su57',
-    name: 'Su-57 Felon',
-    role: 'Blindado / Área',
-    speed: 4.8,
+  fa18: {
+    id: 'fa18',
+    name: 'F/A-18 Super Hornet',
+    role: 'Multifunção / Ataque',
+    speed: 5.2,
     baseHp: 145,
-    fireCooldown: 0.21, // 210ms limitador de cadência
+    fireCooldown: 0.20, // 200ms limitador de cadência
     baseDamage: 30,
     specialName: 'Pulso EMP',
     specialCooldown: 13.0,
-    statSpeed: 50,
+    statSpeed: 60,
     statArmor: 85,
     statDamage: 80,
-    desc: 'Super-manobrável com blindagem reforçada e disparos em leque. Especial [Q]: Pulso EMP (apaga projéteis e choca a tela em área).'
+    desc: 'Caça naval de alta manobrabilidade e blindagem reforçada. Especial [Q]: Pulso EMP (apaga projéteis e atordoa alvos na área).'
   },
   a10: {
     id: 'a10',
@@ -68,6 +86,8 @@ const PLANE_DATA = {
     desc: 'Tanque voador construído ao redor do canhão rotativo GAU-8 Avenger de 30mm. Especial [Q]: Hiper-rajada incendiária contínua.'
   }
 };
+// Alias para compatibilidade caso haja salvamentos antigos
+PLANE_DATA.su57 = PLANE_DATA.fa18;
 
 // --- PALETAS DE CORES DAS SKINS (PINTURAS) ---
 const SKIN_DATA = {
@@ -76,6 +96,7 @@ const SKIN_DATA = {
     name: 'Padrão',
     f14: { body: '#4a5d6e', wing: '#37474f', trim: '#00e5ff', canopy: '#80deea' },
     f22: { body: '#37474f', wing: '#263238', trim: '#00e5ff', canopy: '#ffd54f' },
+    fa18: { body: '#2e3b4e', wing: '#1c2833', trim: '#ff9100', canopy: '#ffb74d' },
     su57: { body: '#2e3b4e', wing: '#1c2833', trim: '#ff9100', canopy: '#ffb74d' },
     a10: { body: '#3e4a3d', wing: '#2b332a', trim: '#ff1744', canopy: '#fff59d' }
   },
@@ -84,6 +105,7 @@ const SKIN_DATA = {
     name: 'Camuflado Deserto',
     f14: { body: '#c2a649', wing: '#8c733e', trim: '#dfcf9f', canopy: '#ffe082' },
     f22: { body: '#bfa15f', wing: '#7d6328', trim: '#e5d4a6', canopy: '#ffe082' },
+    fa18: { body: '#aa8c4c', wing: '#6e5623', trim: '#f0e2b6', canopy: '#ffca28' },
     su57: { body: '#aa8c4c', wing: '#6e5623', trim: '#f0e2b6', canopy: '#ffca28' },
     a10: { body: '#967d3e', wing: '#59441a', trim: '#e8d7a7', canopy: '#ffd54f' }
   },
@@ -92,6 +114,7 @@ const SKIN_DATA = {
     name: 'Preto Furtivo',
     f14: { body: '#141418', wing: '#0d0d10', trim: '#ff1744', canopy: '#ff5252' },
     f22: { body: '#121214', wing: '#0a0a0c', trim: '#ff1744', canopy: '#ff1744' },
+    fa18: { body: '#18181c', wing: '#0f0f12', trim: '#ff3d00', canopy: '#ff3d00' },
     su57: { body: '#18181c', wing: '#0f0f12', trim: '#ff3d00', canopy: '#ff3d00' },
     a10: { body: '#16161a', wing: '#0c0c0e', trim: '#d50000', canopy: '#ff1744' }
   },
@@ -100,6 +123,7 @@ const SKIN_DATA = {
     name: 'Néon Retro',
     f14: { body: '#2a0845', wing: '#6441a5', trim: '#00e5ff', canopy: '#00e5ff' },
     f22: { body: '#1f0036', wing: '#4a0072', trim: '#d500f9', canopy: '#ff4081' },
+    fa18: { body: '#31004a', wing: '#6a0080', trim: '#00e5ff', canopy: '#d500f9' },
     su57: { body: '#31004a', wing: '#6a0080', trim: '#00e5ff', canopy: '#d500f9' },
     a10: { body: '#3b0042', wing: '#7b1fa2', trim: '#ff007f', canopy: '#00e5ff' }
   }
@@ -279,7 +303,7 @@ class StorageManager {
         { rank: 1, score: 18500, plane: 'F-22', kills: 74, date: '02/10/2026' },
         { rank: 2, score: 14200, plane: 'F-14', kills: 58, date: '01/10/2026' },
         { rank: 3, score: 9800, plane: 'A-10', kills: 42, date: '30/09/2026' },
-        { rank: 4, score: 6500, plane: 'Su-57', kills: 29, date: '29/09/2026' },
+        { rank: 4, score: 6500, plane: 'F/A-18', kills: 29, date: '29/09/2026' },
         { rank: 5, score: 3200, plane: 'F-14', kills: 16, date: '28/09/2026' }
       ];
       localStorage.setItem('topgun_survival_leaderboard', JSON.stringify(leaderboard));
@@ -291,10 +315,13 @@ class StorageManager {
       upgrades = { ...upgrades, ...savedUpgrades };
     } catch (e) {}
 
+    let savedPlane = localStorage.getItem('topgun_plane') || 'f14';
+    if (savedPlane === 'su57') savedPlane = 'fa18';
+
     return {
       gold: parseInt(localStorage.getItem('topgun_gold') || '0', 10),
       highScore: parseInt(localStorage.getItem('topgun_highscore') || '0', 10),
-      plane: localStorage.getItem('topgun_plane') || 'f14',
+      plane: savedPlane,
       skin: localStorage.getItem('topgun_skin') || 'default',
       difficulty: localStorage.getItem('topgun_difficulty') || 'medium',
       mode: localStorage.getItem('topgun_mode') || 'campaign',
@@ -1074,18 +1101,65 @@ class ParallaxBackground {
     this.islands = [];
     this.surfaceTargets = [];
     this.clouds = [];
+    this.foregroundClouds = [];
     this.cityBuildings = [];
 
+    // Suporte a transição suave entre cenários (Dissolução cruzada / Crossfade)
+    this.prevStageId = null;
+    this.prevIslands = [];
+    this.prevCityBuildings = [];
+    this.isTransitioning = false;
+    this.transitionProgress = 1.0;
+    this.transitionDuration = 3.0;
+
     this.initClouds();
+    this.initForegroundClouds();
     this.initCityBuildings();
     this.generateTerrain();
   }
 
-  setStage(stageId) {
+  setStage(stageId, smooth = false, duration = 3.0) {
+    if (smooth) {
+      this.transitionToStage(stageId, duration);
+      return;
+    }
     this.stageId = stageId;
+    this.isTransitioning = false;
+    this.transitionProgress = 1.0;
+    this.prevStageId = null;
+    this.prevIslands = [];
+    this.prevCityBuildings = [];
     this.islands = [];
     this.surfaceTargets = [];
     this.generateTerrain();
+    if (stageId === 'megacity') {
+      this.initCityBuildings();
+    }
+  }
+
+  transitionToStage(newStageId, duration = 3.0) {
+    if (this.stageId === newStageId && !this.isTransitioning) return;
+
+    // Preserva elementos do cenário anterior para dissolução cruzada fluida
+    this.prevStageId = this.stageId;
+    this.prevIslands = this.islands.map(is => ({
+      x: is.x,
+      y: is.y,
+      radius: is.radius,
+      points: is.points
+    }));
+    this.prevCityBuildings = this.cityBuildings.map(b => ({ ...b }));
+
+    this.stageId = newStageId;
+    this.isTransitioning = true;
+    this.transitionProgress = 0;
+    this.transitionDuration = duration;
+
+    // Gera o novo terreno preservando alvos terrestres ativos no combate
+    this.generateTerrain(true);
+    if (newStageId === 'megacity') {
+      this.initCityBuildings();
+    }
   }
 
   initClouds() {
@@ -1095,8 +1169,21 @@ class ParallaxBackground {
         x: Math.random() * this.width,
         y: Math.random() * this.height,
         scale: Math.random() * 0.7 + 0.6,
-        alpha: Math.random() * 0.25 + 0.15,
+        alpha: Math.random() * 0.22 + 0.12,
         speed: Math.random() * 0.5 + 1.2
+      });
+    }
+  }
+
+  initForegroundClouds() {
+    this.foregroundClouds = [];
+    for (let i = 0; i < 4; i++) {
+      this.foregroundClouds.push({
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        scale: Math.random() * 0.8 + 1.0,
+        alpha: Math.random() * 0.06 + 0.04,
+        speed: Math.random() * 0.6 + 2.2
       });
     }
   }
@@ -1115,9 +1202,11 @@ class ParallaxBackground {
     }
   }
 
-  generateTerrain() {
+  generateTerrain(preserveTargets = false) {
     this.islands = [];
-    this.surfaceTargets = [];
+    if (!preserveTargets) {
+      this.surfaceTargets = [];
+    }
 
     for (let i = 0; i < 5; i++) {
       const radius = Math.random() * 38 + 32;
@@ -1151,12 +1240,46 @@ class ParallaxBackground {
   update(dt, enemyBullets, playerX, playerY, bulletSpeedMult) {
     this.scrollOffset = (this.scrollOffset + this.scrollSpeed * dt * 60) % 60;
 
-    // Nuvens
+    // Atualiza transição suave com dissolução cruzada entre cenários
+    if (this.isTransitioning) {
+      this.transitionProgress += dt / this.transitionDuration;
+
+      // Mantém os elementos do cenário anterior rolando continuamente sem congelar
+      if (this.prevIslands && this.prevIslands.length > 0) {
+        for (let is of this.prevIslands) {
+          is.y += this.scrollSpeed * dt * 60;
+        }
+      }
+      if (this.prevCityBuildings && this.prevCityBuildings.length > 0) {
+        for (let b of this.prevCityBuildings) {
+          b.y += 1.4 * dt * 60;
+        }
+      }
+
+      if (this.transitionProgress >= 1) {
+        this.isTransitioning = false;
+        this.transitionProgress = 1.0;
+        this.prevStageId = null;
+        this.prevIslands = [];
+        this.prevCityBuildings = [];
+      }
+    }
+
+    // Nuvens de Fundo
     for (let c of this.clouds) {
       c.y += c.speed * dt * 60;
       if (c.y > this.height + 80) {
         c.y = -80;
         c.x = Math.random() * this.width;
+      }
+    }
+
+    // Nuvens Frontais Suaves (movimento fluido independente sem solavancos)
+    for (let fc of this.foregroundClouds) {
+      fc.y += fc.speed * dt * 60;
+      if (fc.y > this.height + 120) {
+        fc.y = -120;
+        fc.x = Math.random() * this.width;
       }
     }
 
@@ -1192,18 +1315,22 @@ class ParallaxBackground {
     }
   }
 
-  draw(ctx) {
+  drawBiomeBackground(ctx, stageId, islands, buildings, alpha = 1.0) {
+    if (alpha <= 0.001) return;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+
     // 1. Fundo do Bioma
     const grad = ctx.createLinearGradient(0, 0, 0, this.height);
-    if (this.stageId === 'ocean') {
+    if (stageId === 'ocean') {
       grad.addColorStop(0, '#091c33'); grad.addColorStop(1, '#051021');
-    } else if (this.stageId === 'coast') {
+    } else if (stageId === 'coast') {
       grad.addColorStop(0, '#0a2540'); grad.addColorStop(1, '#051329');
-    } else if (this.stageId === 'jungle') {
+    } else if (stageId === 'jungle') {
       grad.addColorStop(0, '#102e17'); grad.addColorStop(1, '#07170b');
-    } else if (this.stageId === 'canyon') {
+    } else if (stageId === 'canyon') {
       grad.addColorStop(0, '#4a2c11'); grad.addColorStop(1, '#2d1808');
-    } else if (this.stageId === 'megacity') {
+    } else if (stageId === 'megacity') {
       grad.addColorStop(0, '#0d0221'); grad.addColorStop(1, '#05010d');
     } else {
       grad.addColorStop(0, '#091c33'); grad.addColorStop(1, '#051021');
@@ -1223,8 +1350,8 @@ class ParallaxBackground {
     }
 
     // Arranha-céus (Megacidade)
-    if (this.stageId === 'megacity') {
-      for (let b of this.cityBuildings) {
+    if (stageId === 'megacity' && buildings && buildings.length > 0) {
+      for (let b of buildings) {
         ctx.fillStyle = b.color;
         ctx.fillRect(b.x, b.y, b.w, b.h);
         ctx.strokeStyle = b.neon;
@@ -1241,51 +1368,80 @@ class ParallaxBackground {
     }
 
     // Ilhas, Dunas de Areia e Terrenos
-    for (let is of this.islands) {
-      ctx.save();
-      ctx.translate(is.x, is.y);
+    if (islands && islands.length > 0) {
+      for (let is of islands) {
+        ctx.save();
+        ctx.translate(is.x, is.y);
 
-      // Borda Costeira / Areia
-      ctx.beginPath();
-      for (let i = 0; i < is.points.length; i++) {
-        const pt = is.points[i];
-        if (i === 0) ctx.moveTo(pt.x * 1.15, pt.y * 1.15);
-        else ctx.lineTo(pt.x * 1.15, pt.y * 1.15);
+        // Borda Costeira / Areia
+        ctx.beginPath();
+        for (let i = 0; i < is.points.length; i++) {
+          const pt = is.points[i];
+          if (i === 0) ctx.moveTo(pt.x * 1.15, pt.y * 1.15);
+          else ctx.lineTo(pt.x * 1.15, pt.y * 1.15);
+        }
+        ctx.closePath();
+
+        if (stageId === 'coast') {
+          ctx.fillStyle = '#d4a373'; // Areia de praia
+        } else if (stageId === 'jungle') {
+          ctx.fillStyle = '#1b4332'; // Selva
+        } else if (stageId === 'canyon') {
+          ctx.fillStyle = '#8d5b28'; // Canyon rochoso
+        } else {
+          ctx.fillStyle = 'rgba(0, 180, 216, 0.25)'; // Ilha oceânica
+        }
+        ctx.fill();
+
+        // Centro do Terreno
+        ctx.beginPath();
+        for (let i = 0; i < is.points.length; i++) {
+          const pt = is.points[i];
+          if (i === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.closePath();
+
+        if (stageId === 'coast') {
+          ctx.fillStyle = '#c58b59';
+        } else if (stageId === 'jungle') {
+          ctx.fillStyle = '#2d6a4f';
+        } else if (stageId === 'canyon') {
+          ctx.fillStyle = '#5d3714';
+        } else {
+          ctx.fillStyle = '#225a40';
+        }
+        ctx.fill();
+
+        ctx.restore();
       }
-      ctx.closePath();
+    }
 
-      if (this.stageId === 'coast') {
-        ctx.fillStyle = '#d4a373'; // Areia de praia
-      } else if (this.stageId === 'jungle') {
-        ctx.fillStyle = '#1b4332'; // Selva
-      } else if (this.stageId === 'canyon') {
-        ctx.fillStyle = '#8d5b28'; // Canyon rochoso
-      } else {
-        ctx.fillStyle = 'rgba(0, 180, 216, 0.25)'; // Ilha oceânica
+    ctx.restore();
+  }
+
+  draw(ctx) {
+    if (this.isTransitioning && this.prevStageId) {
+      const progress = Math.min(1, Math.max(0, this.transitionProgress));
+      // Interpolação suave cúbica (smoothstep) para evitar trocas abruptas
+      const smoothT = progress * progress * (3 - 2 * progress);
+
+      // Cenário anterior (fade out progressivo)
+      this.drawBiomeBackground(ctx, this.prevStageId, this.prevIslands, this.prevCityBuildings, 1.0 - smoothT);
+
+      // Novo cenário (fade in progressivo em dissolução cruzada)
+      this.drawBiomeBackground(ctx, this.stageId, this.islands, this.cityBuildings, smoothT);
+
+      // Brilho atmosférico sutil na transição entre setores
+      const glowAlpha = Math.sin(smoothT * Math.PI) * 0.08;
+      if (glowAlpha > 0.002) {
+        ctx.save();
+        ctx.fillStyle = `rgba(255, 255, 255, ${glowAlpha})`;
+        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.restore();
       }
-      ctx.fill();
-
-      // Centro do Terreno
-      ctx.beginPath();
-      for (let i = 0; i < is.points.length; i++) {
-        const pt = is.points[i];
-        if (i === 0) ctx.moveTo(pt.x, pt.y);
-        else ctx.lineTo(pt.x, pt.y);
-      }
-      ctx.closePath();
-
-      if (this.stageId === 'coast') {
-        ctx.fillStyle = '#c58b59';
-      } else if (this.stageId === 'jungle') {
-        ctx.fillStyle = '#2d6a4f';
-      } else if (this.stageId === 'canyon') {
-        ctx.fillStyle = '#5d3714';
-      } else {
-        ctx.fillStyle = '#225a40';
-      }
-      ctx.fill();
-
-      ctx.restore();
+    } else {
+      this.drawBiomeBackground(ctx, this.stageId, this.islands, this.cityBuildings, 1.0);
     }
 
     // Desenho de Alvos de Superfície
@@ -1293,7 +1449,7 @@ class ParallaxBackground {
       st.draw(ctx);
     }
 
-    // Nuvens Semi-Transparentes em Paralaxe
+    // Nuvens Semi-Transparentes em Paralaxe (círculos orgânicos e suaves)
     for (let c of this.clouds) {
       ctx.save();
       ctx.translate(c.x, c.y);
@@ -1301,10 +1457,11 @@ class ParallaxBackground {
       ctx.fillStyle = `rgba(255, 255, 255, ${c.alpha})`;
 
       ctx.beginPath();
-      ctx.arc(0, 0, 35, 0, Math.PI * 2);
-      ctx.arc(28, -8, 26, 0, Math.PI * 2);
-      ctx.arc(-26, 6, 22, 0, Math.PI * 2);
-      ctx.arc(15, 12, 28, 0, Math.PI * 2);
+      ctx.arc(0, 0, 36, 0, Math.PI * 2);
+      ctx.arc(28, -8, 28, 0, Math.PI * 2);
+      ctx.arc(-26, 6, 24, 0, Math.PI * 2);
+      ctx.arc(16, 12, 30, 0, Math.PI * 2);
+      ctx.arc(-14, -8, 22, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.restore();
@@ -1312,11 +1469,23 @@ class ParallaxBackground {
   }
 
   drawForegroundClouds(ctx) {
-    // Camada superior de nuvens velozes
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-    for (let i = 0; i < 3; i++) {
-      const y = ((this.scrollOffset * 2.5 + i * 320) % (this.height + 200)) - 100;
-      ctx.fillRect(0, y, this.width, 45);
+    // Camada frontal de nuvens suaves feitas com círculos semi-transparentes (rgba)
+    // Elimina totalmente retângulos cinzas rígidos ou oscilações
+    for (let fc of this.foregroundClouds) {
+      ctx.save();
+      ctx.translate(fc.x, fc.y);
+      ctx.scale(fc.scale, fc.scale);
+      ctx.fillStyle = `rgba(255, 255, 255, ${fc.alpha})`;
+
+      ctx.beginPath();
+      ctx.arc(0, 0, 48, 0, Math.PI * 2);
+      ctx.arc(38, -12, 36, 0, Math.PI * 2);
+      ctx.arc(-36, 10, 32, 0, Math.PI * 2);
+      ctx.arc(22, 16, 38, 0, Math.PI * 2);
+      ctx.arc(-20, -14, 28, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
     }
   }
 }
@@ -1340,10 +1509,19 @@ class WeatherSystem {
     this.lightningTimer = 0;
   }
 
-  setStage(stageId) {
+  setStage(stageId, smooth = false) {
     this.stageId = stageId;
     this.activeEvent = null;
-    this.particles = [];
+    this.lightningWarning = false;
+    this.lightningActive = false;
+    this.windForce = 0;
+    if (!smooth) {
+      this.particles = [];
+      this.timer = 12.0;
+    } else {
+      // Em transição suave, deixa as partículas ativas dissiparem naturalmente fora da tela
+      this.timer = 6.0;
+    }
   }
 
   triggerEvent() {
@@ -1810,10 +1988,12 @@ class Player {
     this.vx = 0;
     this.vy = 0;
 
-    this.planeType = planeType;
+    // Chave da nave ativa (garante uso de 'f14', 'f22', 'fa18', 'a10', mapeando su57 para fa18)
+    this.currentShip = (planeType === 'su57' || planeType === 'fa18') ? 'fa18' : (planeType || 'f14');
+    this.planeType = this.currentShip;
     this.skinType = skinType;
-    this.data = PLANE_DATA[planeType];
-    this.skin = SKIN_DATA[skinType] ? SKIN_DATA[skinType][planeType] : SKIN_DATA.default[planeType];
+    this.data = PLANE_DATA[this.currentShip] || PLANE_DATA.fa18;
+    this.skin = SKIN_DATA[skinType] ? (SKIN_DATA[skinType][this.currentShip] || SKIN_DATA[skinType].fa18) : SKIN_DATA.default[this.currentShip];
 
     // Upgrades da Loja
     const armorBonus = 1 + (upgrades.armor || 0) * 0.15;
@@ -1822,7 +2002,11 @@ class Player {
 
     this.speed = this.data.speed;
     this.damageMult = 1.0;
-    this.radius = 16;
+
+    // Tamanho exato em pixels do sprite Pixel Art (64x64) para colisões e renderização corretas
+    this.width = 64;
+    this.height = 64;
+    this.radius = 20;
     this.rollAngle = 0;
 
     this.weaponLevel = 1;
@@ -1896,7 +2080,7 @@ class Player {
       return;
     }
 
-    if (this.planeType === 'f14') {
+    if (this.currentShip === 'f14' || this.planeType === 'f14') {
       sound.playVulcan();
       const dmg = 24 * this.damageMult;
       if (this.weaponLevel === 1) {
@@ -1912,7 +2096,7 @@ class Player {
         projectiles.push(new Projectile({ x: this.x - 18, y: this.y - 10, vx: -3.0, vy: -15.5, damage: dmg }));
         projectiles.push(new Projectile({ x: this.x + 18, y: this.y - 10, vx: 3.0, vy: -15.5, damage: dmg }));
       }
-    } else if (this.planeType === 'f22') {
+    } else if (this.currentShip === 'f22' || this.planeType === 'f22') {
       sound.playPlasma();
       const dmg = (this.weaponLevel === 1 ? 28 : (this.weaponLevel === 2 ? 38 : 48)) * this.damageMult;
       projectiles.push(new Projectile({ x: this.x - 8, y: this.y - 18, vx: 0, vy: -18, damage: dmg, color: '#00e5ff' }));
@@ -1921,13 +2105,13 @@ class Player {
         projectiles.push(new Projectile({ x: this.x - 16, y: this.y - 12, vx: -1.2, vy: -17, damage: dmg * 0.8, color: '#00e5ff' }));
         projectiles.push(new Projectile({ x: this.x + 16, y: this.y - 12, vx: 1.2, vy: -17, damage: dmg * 0.8, color: '#00e5ff' }));
       }
-    } else if (this.planeType === 'su57') {
+    } else if (this.currentShip === 'fa18' || this.planeType === 'su57') {
       sound.playHeavyCannon();
       const dmg = (this.weaponLevel === 1 ? 28 : (this.weaponLevel === 2 ? 38 : 50)) * this.damageMult;
       projectiles.push(new Projectile({ x: this.x, y: this.y - 18, vx: 0, vy: -15, damage: dmg, radius: 4.5, color: '#ff9100' }));
       projectiles.push(new Projectile({ x: this.x - 14, y: this.y - 12, vx: -2.8, vy: -14.5, damage: dmg, radius: 4, color: '#ff9100' }));
       projectiles.push(new Projectile({ x: this.x + 14, y: this.y - 12, vx: 2.8, vy: -14.5, damage: dmg, radius: 4, color: '#ff9100' }));
-    } else if (this.planeType === 'a10') {
+    } else if (this.currentShip === 'a10' || this.planeType === 'a10') {
       sound.playGau8();
       const dmg = (this.weaponLevel === 1 ? 25 : (this.weaponLevel === 2 ? 34 : 46)) * this.damageMult;
       projectiles.push(new Projectile({ x: this.x - 4, y: this.y - 20, vx: (Math.random() - 0.5) * 0.5, vy: -19, damage: dmg, radius: 4, color: '#ffeb3b' }));
@@ -1978,7 +2162,7 @@ class Player {
     if (this.specialCooldown > 0) return;
     this.specialCooldown = this.specialMaxCooldown;
 
-    if (this.planeType === 'f14') {
+    if (this.currentShip === 'f14' || this.planeType === 'f14') {
       sound.playMissileLaunch();
       const spreadAngles = [-5, -3, -1, 1, 3, 5];
       for (let a of spreadAngles) {
@@ -1992,10 +2176,10 @@ class Player {
           color: '#ffffff'
         }));
       }
-    } else if (this.planeType === 'f22') {
+    } else if (this.currentShip === 'f22' || this.planeType === 'f22') {
       sound.playStealth();
       this.stealthTimer = 4.0;
-    } else if (this.planeType === 'su57') {
+    } else if (this.currentShip === 'fa18' || this.planeType === 'su57') {
       sound.playEMP();
       particles.addEmpWave(this.x, this.y);
       enemyBullets.length = 0;
@@ -2201,152 +2385,13 @@ class Player {
 
     ctx.scale(rollScaleX, 1);
 
-    if (this.planeType === 'f14') this.drawF14(ctx);
-    else if (this.planeType === 'f22') this.drawF22(ctx);
-    else if (this.planeType === 'su57') this.drawSu57(ctx);
-    else if (this.planeType === 'a10') this.drawA10(ctx);
+    // Renderização do Sprite em Pixel Art (centralizado na posição do jogador)
+    const shipKey = this.currentShip || (this.planeType === 'su57' ? 'fa18' : this.planeType);
+    if (playerSprites[shipKey] && playerSprites[shipKey].complete && playerSprites[shipKey].naturalWidth !== 0) {
+      ctx.drawImage(playerSprites[shipKey], -this.width / 2, -this.height / 2, this.width, this.height);
+    }
 
     ctx.restore();
-  }
-
-  drawF14(ctx) {
-    const s = this.skin;
-    ctx.fillStyle = s.wing;
-    ctx.strokeStyle = s.trim;
-    ctx.lineWidth = 1.2;
-
-    // Asas
-    ctx.beginPath();
-    ctx.moveTo(0, -6);
-    ctx.lineTo(-38, 16);
-    ctx.lineTo(-32, 24);
-    ctx.lineTo(0, 10);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0, -6);
-    ctx.lineTo(38, 16);
-    ctx.lineTo(32, 24);
-    ctx.lineTo(0, 10);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    // Fuselagem
-    ctx.fillStyle = s.body;
-    ctx.beginPath();
-    ctx.moveTo(0, -28);
-    ctx.lineTo(8, -10);
-    ctx.lineTo(12, 14);
-    ctx.lineTo(14, 26);
-    ctx.lineTo(4, 24);
-    ctx.lineTo(0, 26);
-    ctx.lineTo(-4, 24);
-    ctx.lineTo(-14, 26);
-    ctx.lineTo(-12, 14);
-    ctx.lineTo(-8, -10);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    // Canopy
-    ctx.fillStyle = s.canopy;
-    ctx.beginPath();
-    ctx.ellipse(0, -12, 3.5, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  drawF22(ctx) {
-    const s = this.skin;
-    ctx.fillStyle = s.body;
-    ctx.strokeStyle = s.trim;
-    ctx.lineWidth = 1.2;
-
-    // Asas Delta Furtivas
-    ctx.beginPath();
-    ctx.moveTo(0, -28);
-    ctx.lineTo(10, -8);
-    ctx.lineTo(36, 12);
-    ctx.lineTo(30, 24);
-    ctx.lineTo(14, 18);
-    ctx.lineTo(10, 28);
-    ctx.lineTo(-10, 28);
-    ctx.lineTo(-14, 18);
-    ctx.lineTo(-30, 24);
-    ctx.lineTo(-36, 12);
-    ctx.lineTo(-10, -8);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    // Canopy Dourado / Tintado
-    ctx.fillStyle = s.canopy;
-    ctx.beginPath();
-    ctx.ellipse(0, -10, 4, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  drawSu57(ctx) {
-    const s = this.skin;
-    ctx.fillStyle = s.body;
-    ctx.strokeStyle = s.trim;
-    ctx.lineWidth = 1.2;
-
-    ctx.beginPath();
-    ctx.moveTo(0, -30);
-    ctx.lineTo(12, -12);
-    ctx.lineTo(38, 8);
-    ctx.lineTo(28, 26);
-    ctx.lineTo(14, 20);
-    ctx.lineTo(8, 28);
-    ctx.lineTo(-8, 28);
-    ctx.lineTo(-14, 20);
-    ctx.lineTo(-28, 26);
-    ctx.lineTo(-38, 8);
-    ctx.lineTo(-12, -12);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    ctx.fillStyle = s.canopy;
-    ctx.beginPath();
-    ctx.ellipse(0, -10, 4.5, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  drawA10(ctx) {
-    const s = this.skin;
-    ctx.fillStyle = s.wing;
-    ctx.strokeStyle = s.trim;
-    ctx.lineWidth = 1.2;
-
-    // Asas Retas Super-Pesadas
-    ctx.fillRect(-42, 2, 84, 12);
-    ctx.strokeRect(-42, 2, 84, 12);
-
-    // Motores Turbofan Traseiros Elevados
-    ctx.fillStyle = '#212121';
-    ctx.fillRect(-18, 14, 10, 16);
-    ctx.fillRect(8, 14, 10, 16);
-
-    // Fuselagem Robusta
-    ctx.fillStyle = s.body;
-    ctx.beginPath();
-    ctx.moveTo(0, -28);
-    ctx.lineTo(8, -16);
-    ctx.lineTo(9, 22);
-    ctx.lineTo(0, 26);
-    ctx.lineTo(-9, 22);
-    ctx.lineTo(-8, -16);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    // Focinho do GAU-8 Avenger
-    ctx.fillStyle = '#111';
-    ctx.fillRect(-2, -30, 4, 6);
-
-    // Canopy
-    ctx.fillStyle = s.canopy;
-    ctx.beginPath();
-    ctx.ellipse(0, -8, 4, 8, 0, 0, Math.PI * 2);
-    ctx.fill();
   }
 }
 
@@ -2975,6 +3020,7 @@ class EnemyManager {
     this.coins = [];
     this.boss = null;
     this.spawnTimer = 1.0;
+    this.nextSurvivalBossScore = 2500;
   }
 
   reset() {
@@ -2984,6 +3030,7 @@ class EnemyManager {
     this.coins = [];
     this.boss = null;
     this.spawnTimer = 1.0;
+    this.nextSurvivalBossScore = 2500;
   }
 
   spawnWave(score, difficultyMods, stageNum = 1) {
@@ -3023,9 +3070,14 @@ class EnemyManager {
   update(dt, player, particles, score, difficultyMods, uiController, currentStageInfo, onBossDefeated, isSurvivalMode) {
     // Aparição do Chefe
     if (!this.boss) {
-      const triggerScore = isSurvivalMode ? 2500 : currentStageInfo.bossScoreTrigger;
-      if (score >= triggerScore) {
+      const shouldSpawnBoss = isSurvivalMode
+        ? score >= this.nextSurvivalBossScore
+        : score >= currentStageInfo.bossScoreTrigger;
+      if (shouldSpawnBoss) {
         this.boss = new Boss(this.width, this.height, difficultyMods, currentStageInfo);
+        if (isSurvivalMode) {
+          this.nextSurvivalBossScore = Math.max(score + 2500, Math.floor(score / 2500 + 1) * 2500);
+        }
         sound.playWarning();
         uiController.triggerRadio(`ALERTA: Assinatura do Chefe ${this.boss.name} detectada no radar!`);
       }
@@ -3132,10 +3184,14 @@ class GameEngine {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
+    this.ctx.imageSmoothingEnabled = false; // Configuração obrigatória de Pixel Art para renderização nítida
     this.width = this.canvas.width;
     this.height = this.canvas.height;
 
     this.saveData = StorageManager.load();
+    if (this.saveData.plane === 'su57') {
+      this.saveData.plane = 'fa18';
+    }
     this.selectedPlane = this.saveData.plane;
     this.selectedSkin = this.saveData.skin;
     this.selectedDifficulty = this.saveData.difficulty;
@@ -3326,6 +3382,7 @@ class GameEngine {
   }
 
   selectPlane(planeId) {
+    if (planeId === 'su57') planeId = 'fa18';
     this.selectedPlane = planeId;
     this.saveData.plane = planeId;
     StorageManager.save(this.saveData);
@@ -3334,10 +3391,19 @@ class GameEngine {
 
   updatePlaneSelectionUI() {
     document.querySelectorAll('.plane-card').forEach(card => {
-      card.classList.toggle('active', card.dataset.plane === this.selectedPlane);
+      const p = card.dataset.plane === 'su57' ? 'fa18' : card.dataset.plane;
+      card.classList.toggle('active', p === this.selectedPlane);
     });
 
-    const data = PLANE_DATA[this.selectedPlane];
+    const suCard = document.querySelector('.plane-card[data-plane="su57"]');
+    if (suCard) {
+      const nameEl = suCard.querySelector('.plane-name');
+      if (nameEl && !nameEl.innerText.includes('F/A-18')) nameEl.innerText = 'F/A-18';
+      const roleEl = suCard.querySelector('.plane-role');
+      if (roleEl && !roleEl.innerText.includes('Multifunção')) roleEl.innerText = 'Multifunção';
+    }
+
+    const data = PLANE_DATA[this.selectedPlane] || PLANE_DATA.fa18;
     document.getElementById('fighterDetailTitle').innerText = data.name.toUpperCase();
     document.getElementById('fighterDetailSpecial').innerText = `Q: ${data.specialName.toUpperCase()}`;
     document.getElementById('fighterDetailDesc').innerText = data.desc;
@@ -3481,6 +3547,7 @@ class GameEngine {
     this.totalKills = 0;
     this.combo = 1;
     this.comboTimer = 0;
+    this.lastSurvivalBiomeScore = 0;
     this.projectiles = [];
     this.enemyMgr.reset();
 
@@ -3806,14 +3873,15 @@ class GameEngine {
       diffMods.shootFreqMult += survivalScale * 0.25;
       diffMods.bulletSpeedMult += survivalScale * 0.2;
 
-      // Troca dinâmica de cenário a cada 500 pontos no Modo Sobrevivência
-      const currentSurvivalInterval = Math.floor(this.score / 500);
+      // Troca dinâmica e progressiva de cenário a cada 2.500 pontos no Modo Sobrevivência
+      const currentSurvivalInterval = Math.floor(this.score / 2500);
       if (currentSurvivalInterval > this.lastSurvivalBiomeScore) {
         this.lastSurvivalBiomeScore = currentSurvivalInterval;
         const stageIdx = currentSurvivalInterval % STAGES.length;
         this.currentStageInfo = STAGES[stageIdx];
-        this.background.setStage(this.currentStageInfo.id);
-        this.weather.setStage(this.currentStageInfo.id);
+        // Aplica transição suave (dissolução cruzada de 3.0s) entre o bioma atual e o próximo
+        this.background.transitionToStage(this.currentStageInfo.id, 3.0);
+        this.weather.setStage(this.currentStageInfo.id, true);
         this.ui.triggerRadio(`Transição de setor: ${this.currentStageInfo.name.toUpperCase()}! Perigo: ${this.currentStageInfo.hazard}`);
       }
     }
