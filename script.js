@@ -2554,14 +2554,20 @@ class Enemy {
         enemyBullets.push(new EnemyBullet(this.x, this.y + this.height / 2, (dx / dist) * spd, (dy / dist) * spd, true));
       }
     } else if (this.type === 'b2') {
-      // Bombardeiro Chefe B-2 Spirit: avanço lento, imponente e salvas devastadoras em leque
+      // Bombardeiro Chefe B-2 Spirit: avanço lento, imponente e salvas devastadoras multi-ponto
       this.y += this.speedY * dt * 60;
       this.salvoTimer -= dt * mods.shootFreqMult;
       if (this.salvoTimer <= 0) {
         this.salvoTimer = 2.0;
-        for (let a of [-0.45, -0.22, 0, 0.22, 0.45]) {
-          enemyBullets.push(new EnemyBullet(this.x, this.y + this.height * 0.35, Math.sin(a) * 4.5, Math.cos(a) * 4.5 * mods.bulletSpeedMult, Math.abs(a) < 0.1));
-        }
+        const spd = 4.5 * mods.bulletSpeedMult;
+        // Canhões laterais esquerdo e direito (asas do B-2 de 200px)
+        enemyBullets.push(new EnemyBullet(this.x - 60, this.y + this.height * 0.35, -0.8, spd));
+        enemyBullets.push(new EnemyBullet(this.x + 60, this.y + this.height * 0.35, 0.8, spd));
+        // Canhões internos com leve ângulo
+        enemyBullets.push(new EnemyBullet(this.x - 20, this.y + this.height * 0.4, -0.3, spd));
+        enemyBullets.push(new EnemyBullet(this.x + 20, this.y + this.height * 0.4, 0.3, spd));
+        // Canhão central reto
+        enemyBullets.push(new EnemyBullet(this.x, this.y + this.height * 0.45, 0, spd, true));
       }
     }
 
@@ -2570,8 +2576,9 @@ class Enemy {
   }
 
   draw(ctx) {
+    ctx.save();
     const sprite = enemySprites[this.type];
-    // Verificação de segurança: desenha apenas se a imagem tiver sido carregada com sucesso
+    // Renderização com sprite pixel art nas dimensões corretas (centralizado)
     if (sprite && sprite.complete && sprite.naturalWidth > 0) {
       ctx.drawImage(
         sprite,
@@ -2580,7 +2587,37 @@ class Enemy {
         this.width,
         this.height
       );
+    } else {
+      // Fallback tático: silhueta geométrica visível nas dimensões corretas
+      ctx.fillStyle = this.type === 'b2' ? '#330011' : '#1a2a3a';
+      ctx.strokeStyle = this.type === 'b2' ? '#ff0033' : '#00e5ff';
+      ctx.lineWidth = 1.5;
+      const hw = this.width / 2;
+      const hh = this.height / 2;
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y - hh);
+      ctx.lineTo(this.x + hw, this.y + hh * 0.6);
+      ctx.lineTo(this.x + hw * 0.3, this.y + hh);
+      ctx.lineTo(this.x - hw * 0.3, this.y + hh);
+      ctx.lineTo(this.x - hw, this.y + hh * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
     }
+
+    // Barra de HP para inimigos pesados (su35, su57, b2)
+    if (this.maxHp > 100 && this.hp < this.maxHp) {
+      const barW = this.width * 0.7;
+      const barH = 3;
+      const barX = this.x - barW / 2;
+      const barY = this.y - this.height / 2 - 6;
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(barX, barY, barW, barH);
+      const pct = this.hp / this.maxHp;
+      ctx.fillStyle = pct > 0.5 ? '#00ff41' : (pct > 0.25 ? '#ffab00' : '#ff1744');
+      ctx.fillRect(barX, barY, barW * pct, barH);
+    }
+    ctx.restore();
   }
 }
 
@@ -2651,13 +2688,17 @@ class Boss {
       particles.addSmoke(this.x + 50, this.y + 10);
     }
 
-    // Ataque do Chefe B-2 Spirit / Furtivo
+    // Ataque do Chefe B-2 Spirit / Furtivo — Multi-Ponto (chuva de tiros)
     this.shootTimer1 -= dt * mods.shootFreqMult;
     if (this.shootTimer1 <= 0) {
       this.shootTimer1 = this.phase === 3 ? 0.35 : 0.48;
       const spd = 5.5 * mods.bulletSpeedMult;
-      enemyBullets.push(new EnemyBullet(this.x - 50, this.y + 35, -0.6, spd));
-      enemyBullets.push(new EnemyBullet(this.x + 50, this.y + 35, 0.6, spd));
+      // Canhões exteriores (asas)
+      enemyBullets.push(new EnemyBullet(this.x - 60, this.y + 35, -1.0, spd));
+      enemyBullets.push(new EnemyBullet(this.x + 60, this.y + 35, 1.0, spd));
+      // Canhões internos
+      enemyBullets.push(new EnemyBullet(this.x - 20, this.y + 45, -0.3, spd));
+      enemyBullets.push(new EnemyBullet(this.x + 20, this.y + 45, 0.3, spd));
     }
 
     if (this.phase >= 2) {
@@ -2715,6 +2756,7 @@ class Boss {
       );
     }
 
+    ctx.restore();
   }
 }
 

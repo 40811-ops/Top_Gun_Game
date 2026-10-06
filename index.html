@@ -111,49 +111,46 @@
         </div>
       </div>
 
-      <!-- 3. Garagem de Caças (Seleção) -->
-      <div class="difficulty-container">
-        <div class="section-title">GARAGEM: SELEÇÃO DE VETOR AÉREO</div>
+      <!-- 3. GARAGEM DE CAÇAS (Tela Tática com Sprites Reais) -->
+      <div class="garage-section">
+        <div class="section-title garage-title">GARAGEM DE CACAS</div>
+        <div class="garage-subtitle">SELECIONE VETOR AEREO // STATUS OPERACIONAL</div>
         <div class="garage-carousel" id="garageCarousel">
-          <div class="plane-card active" data-plane="f14">
-            <div class="plane-name">F-14</div>
-            <div class="plane-role">Equilibrado</div>
-            <div class="plane-preview">
-              <svg width="48" height="42" viewBox="0 0 48 42">
-                <polygon points="24,2 28,15 42,26 40,32 28,26 28,38 24,36 20,38 20,26 6,32 4,26 20,15" fill="#4a5d6e" stroke="#00e5ff" stroke-width="1"/>
-              </svg>
+          <div class="plane-card" data-plane="f14">
+            <div class="plane-pedestal">
+              <canvas class="plane-sprite-canvas" id="garageSprite_f14" width="80" height="80"></canvas>
+              <div class="pedestal-base"></div>
+              <div class="pedestal-glow"></div>
             </div>
-            <small style="font-size:8px; color:#00e5ff;">Salvo Phoenix</small>
+            <div class="plane-designation">F-14 TOMCAT</div>
+            <div class="plane-role-tag">EQUILIBRADO</div>
           </div>
           <div class="plane-card" data-plane="f22">
-            <div class="plane-name">F-22</div>
-            <div class="plane-role">Furtivo/Veloz</div>
-            <div class="plane-preview">
-              <svg width="48" height="42" viewBox="0 0 48 42">
-                <polygon points="24,2 30,16 44,28 36,36 28,32 26,38 22,38 20,32 12,36 4,28 18,16" fill="#37474f" stroke="#00e5ff" stroke-width="1"/>
-              </svg>
+            <div class="plane-pedestal">
+              <canvas class="plane-sprite-canvas" id="garageSprite_f22" width="80" height="80"></canvas>
+              <div class="pedestal-base"></div>
+              <div class="pedestal-glow"></div>
             </div>
-            <small style="font-size:8px; color:#00e5ff;">Camuflagem</small>
+            <div class="plane-designation">F-22 RAPTOR</div>
+            <div class="plane-role-tag">FURTIVO / VELOZ</div>
           </div>
           <div class="plane-card" data-plane="su57">
-            <div class="plane-name">Su-57</div>
-            <div class="plane-role">Blindado/Área</div>
-            <div class="plane-preview">
-              <svg width="48" height="42" viewBox="0 0 48 42">
-                <polygon points="24,3 32,15 46,24 40,34 30,30 26,38 22,38 18,30 8,34 2,24 16,15" fill="#2e3b4e" stroke="#ff9100" stroke-width="1"/>
-              </svg>
+            <div class="plane-pedestal">
+              <canvas class="plane-sprite-canvas" id="garageSprite_fa18" width="80" height="80"></canvas>
+              <div class="pedestal-base"></div>
+              <div class="pedestal-glow"></div>
             </div>
-            <small style="font-size:8px; color:#ff9100;">Pulso EMP</small>
+            <div class="plane-designation">F/A-18 HORNET</div>
+            <div class="plane-role-tag">MULTIFUNCAO / ATAQUE</div>
           </div>
           <div class="plane-card" data-plane="a10">
-            <div class="plane-name">A-10</div>
-            <div class="plane-role">Super-Pesado</div>
-            <div class="plane-preview">
-              <svg width="48" height="42" viewBox="0 0 48 42">
-                <polygon points="24,3 27,14 46,18 46,26 28,26 29,36 24,34 19,36 20,26 2,26 2,18 21,14" fill="#3e4a3d" stroke="#ff1744" stroke-width="1"/>
-              </svg>
+            <div class="plane-pedestal">
+              <canvas class="plane-sprite-canvas" id="garageSprite_a10" width="80" height="80"></canvas>
+              <div class="pedestal-base"></div>
+              <div class="pedestal-glow"></div>
             </div>
-            <small style="font-size:8px; color:#ff1744;">GAU-8 Avenger</small>
+            <div class="plane-designation">A-10 WARTHOG</div>
+            <div class="plane-role-tag">SUPER-PESADO GAU-8</div>
           </div>
         </div>
       </div>

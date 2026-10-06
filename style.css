@@ -526,65 +526,208 @@ canvas {
 .diff-btn[data-diff="hard"].active { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.4); }
 .diff-btn[data-diff="nightmare"].active { border-color: #FF0033; color: #FF0033; box-shadow: 0 0 12px rgba(255,0,51,0.6); }
 
-/* Garagem de Caças */
+/* GARAGEM DE CAÇAS — HUD Tático Neon Green/Cyan */
+.garage-section {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 12px;
+  padding: 10px 8px;
+  background: rgba(0, 10, 5, 0.92);
+  border: 1px solid rgba(0, 255, 0, 0.25);
+  border-radius: 2px;
+  position: relative;
+}
+
+.garage-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00ff41 30%, #00ffff 50%, #00ff41 70%, transparent);
+}
+
+.garage-title {
+  color: #00ff41 !important;
+  font-family: 'Courier New', monospace !important;
+  font-size: 13px !important;
+  letter-spacing: 4px;
+  text-align: center;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+}
+
+.garage-subtitle {
+  color: #00ffff;
+  font-family: 'Courier New', monospace;
+  font-size: 8.5px;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
 .garage-carousel {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  max-width: 460px;
-  overflow-x: auto;
+  justify-content: center;
   padding-bottom: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 255, 0, 0.3) transparent;
 }
 
 .plane-card {
-  flex: 0 0 108px;
-  background: rgba(5, 18, 14, 0.88);
-  border: 1.5px solid rgba(0, 255, 0, 0.3);
+  flex: 0 0 105px;
+  background: rgba(0, 20, 10, 0.95);
+  border: 1.5px solid rgba(0, 255, 0, 0.2);
   border-radius: 2px;
-  padding: 8px 6px;
+  padding: 8px 4px 6px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
   text-align: center;
   font-family: 'Courier New', monospace;
   text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.plane-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.2s;
 }
 
 .plane-card:hover {
-  border-color: #00FF00;
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+  border-color: rgba(0, 255, 0, 0.6);
+  box-shadow: 0 0 12px rgba(0, 255, 0, 0.2);
+}
+
+.plane-card:hover::after {
+  background: linear-gradient(90deg, transparent, #00ff41, transparent);
 }
 
 .plane-card.active {
-  border-color: #00FF00;
-  background: rgba(0, 255, 0, 0.2);
-  box-shadow: 0 0 14px rgba(0, 255, 0, 0.5);
-  transform: translateY(-2px);
+  border-color: #00ff41;
+  background: rgba(0, 255, 65, 0.08);
+  box-shadow:
+    0 0 16px rgba(0, 255, 65, 0.35),
+    inset 0 0 20px rgba(0, 255, 65, 0.06);
+  transform: translateY(-3px);
 }
 
-.plane-card .plane-name {
-  font-size: 11px;
-  font-weight: 900;
-  color: #00FF00;
-  margin-bottom: 2px;
-  text-transform: uppercase;
-}
-
-.plane-card .plane-role {
+.plane-card.active::before {
+  content: '>';
+  position: absolute;
+  top: 4px; left: 4px;
+  color: #00ff41;
   font-size: 9px;
-  color: #00FFFF;
-  margin-bottom: 4px;
-  text-transform: uppercase;
+  font-family: 'Courier New', monospace;
+  font-weight: 900;
+  text-shadow: 0 0 6px #00ff41;
 }
 
-.plane-preview {
-  width: 54px;
-  height: 42px;
+.plane-card.active::after {
+  background: linear-gradient(90deg, transparent, #00ffff, #00ff41, #00ffff, transparent);
+  height: 2px;
+  animation: garageActivePulse 2s ease-in-out infinite;
+}
+
+@keyframes garageActivePulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Pedestal Geométrico */
+.plane-pedestal {
+  position: relative;
+  width: 80px;
+  height: 90px;
   margin: 0 auto 4px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.plane-sprite-canvas {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+  position: relative;
+  z-index: 2;
+}
+
+.plane-card.active .plane-sprite-canvas {
+  filter: drop-shadow(0 0 6px rgba(0, 255, 65, 0.5));
+}
+
+.pedestal-base {
+  width: 72px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.4), rgba(0, 255, 255, 0.3), rgba(0, 255, 0, 0.4), transparent);
+  margin-top: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.plane-card.active .pedestal-base {
+  background: linear-gradient(90deg, transparent, #00ff41 20%, #00ffff 50%, #00ff41 80%, transparent);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
+}
+
+.pedestal-glow {
+  width: 50px;
+  height: 1px;
+  background: transparent;
+  margin: 0 auto;
+  transition: all 0.2s;
+}
+
+.plane-card.active .pedestal-glow {
+  width: 60px;
+  height: 8px;
+  background: radial-gradient(ellipse at center, rgba(0, 255, 65, 0.15) 0%, transparent 80%);
+}
+
+/* Rótulos do Caça */
+.plane-designation {
+  font-size: 9.5px;
+  font-weight: 900;
+  color: #607d6b;
+  letter-spacing: 0.5px;
+  margin-bottom: 1px;
+  font-family: 'Courier New', monospace;
+  transition: color 0.2s;
+}
+
+.plane-card.active .plane-designation {
+  color: #00ff41;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.5);
+}
+
+/* Moldura tática [ NOME ] na seleção ativa */
+.plane-card.active .plane-designation::before {
+  content: '[ ';
+  color: #00ffff;
+}
+.plane-card.active .plane-designation::after {
+  content: ' ]';
+  color: #00ffff;
+}
+
+.plane-role-tag {
+  font-size: 7.5px;
+  color: #3d5c4a;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+  transition: color 0.2s;
+}
+
+.plane-card.active .plane-role-tag {
+  color: #00ffff;
+  text-shadow: 0 0 4px rgba(0, 255, 255, 0.3);
 }
 
 /* Seletor de Skins */
