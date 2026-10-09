@@ -66,23 +66,23 @@
     <!-- TELA INICIAL (MENU PRINCIPAL, MODOS, DIFICULDADE E GARAGEM) -->
     <div id="startScreen" class="screen-overlay">
       <h1 class="title-logo">TOP GUN</h1>
-      <div class="subtitle-badge">ARCADE COMBAT EXPERT</div>
+      <div class="subtitle-badge">TACTICAL RADAR // AIR COMBAT</div>
 
       <div class="currency-display">
-        <span>PEÇAS DE OURO:</span>
+        <span>CRÉDITOS</span>
         <span id="menuGoldDisplay">0</span>
       </div>
 
       <!-- 1. Seletor de Modo de Jogo Principal -->
       <div class="mode-select-container">
-        <div class="section-title">SELEÇÃO DO MODO DE OPERAÇÃO TÁTICA</div>
+        <div class="section-title">MODO DE MISSÃO</div>
         <div class="mode-grid">
           <button class="mode-btn active" id="modeCampaignBtn" data-mode="campaign">
-            <span class="mode-btn-title">MODO CAMPANHA</span>
+            <span class="mode-btn-title">CAMPANHA</span>
             <small class="mode-btn-desc">5 Estágios com Chefes e Briefing Militar</small>
           </button>
           <button class="mode-btn" id="modeSurvivalBtn" data-mode="survival">
-            <span class="mode-btn-title">MODO SOBREVIVÊNCIA INFINITA</span>
+            <span class="mode-btn-title">SOBREVIVÊNCIA</span>
             <small class="mode-btn-desc">Sobrevivência Dinâmica (Escala a cada 500 pts)</small>
           </button>
         </div>
@@ -90,7 +90,7 @@
 
       <!-- 2. Seletor de Dificuldade -->
       <div class="difficulty-container">
-        <div class="section-title">NÍVEL DE AMEAÇA / DIFICULDADE</div>
+        <div class="section-title">DIFICULDADE</div>
         <div class="difficulty-grid">
           <button class="diff-btn" data-diff="easy">
             RECRUTA
@@ -113,8 +113,8 @@
 
       <!-- 3. GARAGEM DE CAÇAS (Tela Tática com Sprites Reais) -->
       <div class="garage-section">
-        <div class="section-title garage-title">GARAGEM DE CACAS</div>
-        <div class="garage-subtitle">SELECIONE VETOR AEREO // STATUS OPERACIONAL</div>
+        <div class="section-title garage-title">AERONAVES DISPONÍVEIS</div>
+        <div class="garage-subtitle">SELECIONE SEU CAÇA</div>
         <div class="garage-carousel" id="garageCarousel">
           <div class="plane-card" data-plane="f14">
             <div class="plane-pedestal">
@@ -176,24 +176,24 @@
 
       <!-- Controles e Dicas Rápidas -->
       <div class="info-card">
-        <h4>MANUAL OPERACIONAL DE VOO</h4>
-        <p>• <span class="key-badge">WASD / Setas / Touch Drag</span>: Voo Suave &nbsp;|&nbsp; <span class="key-badge">Espaço</span>: Canhão Contínuo</p>
-        <p>• <span class="key-badge">Shift</span>: Giro Barrel Roll (0.5s Invulnerável) &nbsp;|&nbsp; <span class="key-badge">X</span>: Super Bomba (Limpa tela)</p>
-        <p>• <span class="key-badge">Q</span>: Especial do Caça &nbsp;|&nbsp; <span class="key-badge">E</span>: Bullet Time (Foco) &nbsp;|&nbsp; <span class="key-badge">K</span>: Mísseis</p>
-        <p>• <span class="key-badge">AVISO AQUECIMENTO</span>: Disparo contínuo aquece a arma. Se atingir 100%, trava por 2.5s!</p>
+        <h4>DICAS RÁPIDAS</h4>
+        <p><span class="key-badge">WASD / SETAS</span> mover · <span class="key-badge">ESPAÇO</span> atirar</p>
+        <p><span class="key-badge">SHIFT</span> esquivar · <span class="key-badge">Q</span> especial · <span class="key-badge">K</span> míssil</p>
+        <p><span class="key-badge">X</span> bomba · <span class="key-badge">E</span> foco</p>
+        <p class="tip-note">Dica: solte o disparo às vezes para a arma esfriar.</p>
       </div>
 
       <!-- Botões de Ação do Menu -->
       <div class="menu-action-buttons">
-        <button id="openShopBtn" class="arcade-btn gold-btn">HANGAR DE UPGRADES</button>
-        <button id="openLeaderboardBtn" class="arcade-btn leader-btn">TABELA DE RECORDES</button>
-        <button id="startBtn" class="arcade-btn launch-btn">AUTORIZAR DECOLAGEM</button>
+        <button id="openShopBtn" class="arcade-btn gold-btn">UPGRADES</button>
+        <button id="openLeaderboardBtn" class="arcade-btn leader-btn">RECORDES</button>
+        <button id="startBtn" class="arcade-btn launch-btn">INICIAR MISSÃO</button>
       </div>
     </div>
 
     <!-- MODAL LOJA DE GARAGEM (UPGRADE SHOP - 5 UPGRADES PERMANENTES) -->
     <div id="shopScreen" class="screen-overlay hidden">
-      <h2 class="title-logo" style="font-size: 26px;">HANGAR DE UPGRADES</h2>
+      <h2 class="title-logo" style="font-size: 26px;">UPGRADES</h2>
       <div class="subtitle-badge" style="background: linear-gradient(90deg, #ffa000, #ff6f00);">MELHORIAS PERMANENTES</div>
 
       <div class="currency-display" style="margin-bottom: 18px;">
@@ -271,9 +271,9 @@
       <button id="closeShopBtn" class="arcade-btn" style="margin-top: 22px; padding: 10px 30px; font-size: 13px;">RETORNAR AO HANGAR</button>
     </div>
 
-    <!-- MODAL DE TABELA DE RECORDES (TOP 5 LEADERBOARD) -->
+    <!-- MODAL DE RECORDES (TOP 5 LEADERBOARD) -->
     <div id="leaderboardModal" class="screen-overlay hidden">
-      <h2 class="title-logo" style="font-size: 26px; color: #00FF00;">TABELA DE RECORDES TOP GUN</h2>
+      <h2 class="title-logo" style="font-size: 26px; color: #00FF00;">RECORDES TOP GUN</h2>
       <div class="subtitle-badge" style="background: linear-gradient(90deg, #00FF00, #00b0ff); color: #000; font-weight: 900;">MODO SOBREVIVÊNCIA</div>
 
       <div class="leaderboard-table-container">
@@ -390,7 +390,7 @@
 
       <div style="display: flex; flex-direction: column; gap: 10px; width: 240px;">
         <button id="resumeBtn" class="arcade-btn" style="padding: 12px; font-size: 13px;">CONTINUAR MISSÃO</button>
-        <button id="pauseShopBtn" class="arcade-btn gold-btn" style="padding: 12px; font-size: 13px;">HANGAR DE UPGRADES</button>
+        <button id="pauseShopBtn" class="arcade-btn gold-btn" style="padding: 12px; font-size: 13px;">UPGRADES</button>
         <button id="restartPauseBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);">REINICIAR</button>
         <button id="quitMenuBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: #37474f;">MENU PRINCIPAL</button>
       </div>

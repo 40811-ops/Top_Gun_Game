@@ -1186,3 +1186,96 @@ canvas {
   .plane-designation { font-size: 8px; letter-spacing: 0; }
   .plane-role-tag { font-size: 6.5px; letter-spacing: 0; }
 }
+
+/* ===== MENU RADAR / HUD CLEANUP ===== */
+#startScreen {
+  --radar-cyan: #23d9ee;
+  --radar-blue: #087d99;
+  --radar-orange: #ff765c;
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 34%, rgba(0, 194, 214, .13), transparent 42%),
+    repeating-radial-gradient(circle at 50% 34%, transparent 0 34px, rgba(25, 180, 206, .075) 35px 36px),
+    linear-gradient(135deg, rgba(5, 23, 34, .97), rgba(3, 12, 22, .98) 55%, rgba(4, 26, 37, .97)) !important;
+  border: 1px solid rgba(35, 217, 238, .65) !important;
+  box-shadow: 0 0 28px rgba(0, 174, 210, .13), inset 0 0 60px rgba(0, 119, 150, .08) !important;
+  color: #d8faff;
+  padding: 18px 20px 20px;
+  gap: 0;
+}
+#startScreen::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: min(70vw, 520px); aspect-ratio: 1;
+  top: 88px; left: 50%; transform: translateX(-50%);
+  border-radius: 50%; pointer-events: none;
+  background: repeating-radial-gradient(circle, transparent 0 28px, rgba(35,217,238,.16) 29px 30px),
+    conic-gradient(from 20deg, transparent 0 8%, rgba(35,217,238,.10) 8.5% 9%, transparent 9.5% 24%, rgba(35,217,238,.08) 24.5% 25%, transparent 25.5% 100%);
+  border: 1px solid rgba(35,217,238,.24);
+  box-shadow: 0 0 24px rgba(0,190,220,.08), inset 0 0 28px rgba(0,190,220,.06);
+}
+#startScreen .title-logo { color: #45e9f6; text-shadow: 0 0 18px rgba(35,217,238,.55); letter-spacing: 8px; margin-top: 2px; font-size: clamp(30px, 5vw, 44px); }
+#startScreen .subtitle-badge { background: rgba(13,119,145,.17); border: 1px solid rgba(35,217,238,.45); color: #7cecf5; box-shadow: none; letter-spacing: 3px; margin-bottom: 9px; }
+#startScreen .currency-display { align-self: flex-end; margin: -42px 0 8px; background: rgba(5,30,43,.72); border-color: rgba(35,217,238,.35); color: #8cecf5; box-shadow: none; }
+#startScreen .mode-select-container, #startScreen .difficulty-container { max-width: 720px; margin-bottom: 9px; }
+#startScreen .section-title { color: #67dbe8; letter-spacing: 2px; font-size: 10px; }
+#startScreen .mode-grid { gap: 8px; }
+#startScreen .mode-btn, #startScreen .diff-btn { background: rgba(5,25,38,.78); border: 1px solid rgba(53,165,188,.35); border-radius: 3px; color: #9bbdc8; box-shadow: none; }
+#startScreen .mode-btn.active { border-color: #26d9ec; background: rgba(12,118,143,.24); color: #8cf4ff; box-shadow: inset 0 0 18px rgba(35,217,238,.08); }
+#startScreen .mode-btn-desc { display: none; }
+#startScreen .mode-btn-title { font-size: 11px; letter-spacing: 1.2px; }
+#startScreen .diff-btn { padding: 7px 4px; }
+#startScreen .diff-btn small { display: none; }
+#startScreen .diff-btn.active { border-color: #ff8067; background: rgba(255,118,92,.10); color: #ff9b84; box-shadow: none; }
+#startScreen .garage-section { max-width: 760px; margin-bottom: 8px; padding: 8px 10px 10px; background: rgba(4,19,30,.76); border-color: rgba(35,217,238,.25); border-radius: 3px; }
+#startScreen .garage-section::before { background: linear-gradient(90deg, transparent, #23d9ee, #ff765c, #23d9ee, transparent); }
+#startScreen .garage-title { color: #8debf3 !important; }
+#startScreen .garage-subtitle { color: #5d9da9; letter-spacing: 1.4px; }
+#startScreen .garage-carousel { gap: 8px; }
+#startScreen .plane-card { background: rgba(5,28,41,.72); border: 1px solid rgba(35,217,238,.19); border-radius: 3px; box-shadow: none; }
+#startScreen .plane-card::after { display: none; }
+#startScreen .plane-card.active { border-color: #ff8067; background: rgba(11,73,87,.52); box-shadow: 0 0 15px rgba(35,217,238,.11), inset 0 0 18px rgba(35,217,238,.05); }
+#startScreen .plane-sprite-image { filter: drop-shadow(0 0 7px rgba(35,217,238,.25)); }
+#startScreen .plane-card.active .plane-sprite-image { filter: drop-shadow(0 0 9px rgba(255,118,92,.38)); }
+#startScreen .plane-designation { color: #c9f7fb; font-size: 10px; letter-spacing: .7px; }
+#startScreen .plane-role-tag { color: #76aeb9; background: transparent; border-color: rgba(35,217,238,.2); font-size: 8px; }
+#startScreen .fighter-details-card { max-width: 760px; padding: 8px 12px; margin: 0 auto 8px; background: rgba(4,19,30,.7); border: 1px solid rgba(35,217,238,.22); box-shadow: none; }
+#startScreen .fighter-header { margin-bottom: 5px; }
+#startScreen .fighter-special-badge { border-color: rgba(255,118,92,.45); color: #ff9b84; }
+#startScreen .stat-bars-container { display: grid; grid-template-columns: auto minmax(40px,1fr) auto minmax(40px,1fr) auto minmax(40px,1fr); align-items: center; gap: 6px; }
+#startScreen .stat-bar-label { font-size: 9px; white-space: nowrap; }
+#startScreen .stat-bar-track { height: 4px; }
+#startScreen .fighter-desc { display: none !important; }
+#startScreen .info-card { display: block !important; width: min(760px, 100%); margin: 0 auto 8px; padding: 8px 12px; text-align: left; background: rgba(4,19,30,.78); border: 1px solid rgba(35,217,238,.22); color: #a9dce3; font-size: 10px; line-height: 1.5; }
+#startScreen .info-card h4 { margin: 0 0 4px; color: #67dbe8; font-size: 10px; letter-spacing: 1.5px; }
+#startScreen .info-card p { margin: 2px 0; }
+#startScreen .info-card .tip-note { color: #ff9b84; }
+#startScreen .menu-action-buttons { max-width: 760px; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1.35fr; gap: 8px; margin-top: 2px; }
+#startScreen .menu-action-buttons .arcade-btn { margin: 0; min-height: 40px; padding: 10px 8px; font-size: 10px; letter-spacing: .7px; border-radius: 3px; box-shadow: none; }
+#startScreen .launch-btn { background: linear-gradient(100deg, #ff765c, #df4f43) !important; border: 1px solid #ff9b84 !important; color: #fff !important; }
+@media (max-width: 600px) {
+  #startScreen { padding: 12px 8px; }
+  #startScreen .currency-display { margin: 0 0 8px; align-self: center; }
+  #startScreen::before { top: 110px; width: 92vw; }
+  #startScreen .stat-bars-container { grid-template-columns: auto 1fr; }
+  #startScreen .menu-action-buttons { grid-template-columns: 1fr 1fr; }
+  #startScreen .menu-action-buttons .launch-btn { grid-column: 1 / -1; }
+}
+
+
+/* Correção de inicialização: o menu precisa cobrir a arena no carregamento. */
+#startScreen {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 100 !important;
+}
+#startScreen.hidden { display: none !important; }
+
+/* Modais funcionais acima do menu e da arena */
+#shopScreen, #leaderboardModal { z-index: 140 !important; }
+#startScreen { z-index: 100 !important; }
+#gameCanvas { display: block; }

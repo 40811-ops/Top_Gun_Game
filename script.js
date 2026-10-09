@@ -2619,7 +2619,9 @@ class Boss {
     this.laserWarning = false;
     this.laserActive = false;
     this.laserTimer = 0;
-    this.laserWidth = 48;
+    this.laserWidth = 54;
+    this.laserTargetX = width / 2;
+    this.laserCooldown = 3.8;
   }
 
   update(dt, enemyBullets, player, particles, mods, enemies) {
@@ -2640,6 +2642,27 @@ class Boss {
     if (hpPct > 0.66) this.phase = 1;
     else if (hpPct > 0.33) this.phase = 2;
     else this.phase = 3;
+
+    // Feixe do B-2: mira uma faixa vertical, avisa antes e dispara por pouco tempo.
+    this.laserCooldown -= dt;
+    if (!this.laserWarning && !this.laserActive && this.laserCooldown <= 0) {
+      this.laserWarning = true;
+      this.laserTimer = 1.0;
+      this.laserTargetX = Math.max(35, Math.min(this.canvasWidth - 35, player.x));
+      this.laserCooldown = this.phase === 3 ? 3.0 : 4.2;
+    }
+    if (this.laserWarning) {
+      this.laserTimer -= dt;
+      if (this.laserTimer <= 0) { this.laserWarning = false; this.laserActive = true; this.laserTimer = 0.55; }
+    } else if (this.laserActive) {
+      this.laserTimer -= dt;
+      const beamLeft = this.laserTargetX - this.laserWidth / 2;
+      const beamRight = this.laserTargetX + this.laserWidth / 2;
+      if (player.x + player.radius > beamLeft && player.x - player.radius < beamRight) {
+        if (!player.invulnerable && !player.barrelRolling) player.takeDamage(28 * dt, particles, mods.playerDamageMult || 1, null);
+      }
+      if (this.laserTimer <= 0) this.laserActive = false;
+    }
 
     // Fumaça de Danos
     if (this.phase >= 2 && Math.random() > 0.45) {
@@ -2678,21 +2701,26 @@ class Boss {
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    // Laser de Alerta e Disparo
+    // Feixe desenhado na faixa-alvo do cenário, não preso ao centro do sprite.
+    const beamLocalX = this.laserTargetX - this.x;
     if (this.laserWarning) {
-      ctx.fillStyle = 'rgba(255, 0, 51, 0.22)';
-      ctx.fillRect(-this.laserWidth / 2, 35, this.laserWidth, 900);
-      ctx.strokeStyle = 'rgba(0, 255, 255, 0.6)';
-      ctx.strokeRect(-this.laserWidth / 2, 35, this.laserWidth, 900);
+      ctx.fillStyle = 'rgba(255, 118, 92, 0.13)';
+      ctx.fillRect(beamLocalX - this.laserWidth / 2, -this.y, this.laserWidth, 1000);
+      ctx.strokeStyle = 'rgba(255, 150, 110, 0.95)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 8]);
+      ctx.strokeRect(beamLocalX - this.laserWidth / 2, -this.y, this.laserWidth, 1000);
+      ctx.setLineDash([]);
     }
-
     if (this.laserActive) {
-      ctx.fillStyle = 'rgba(255, 0, 51, 0.85)';
-      ctx.shadowColor = '#FF0033';
-      ctx.shadowBlur = 20;
-      ctx.fillRect(-this.laserWidth / 2, 35, this.laserWidth, 900);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(-this.laserWidth / 4, 35, this.laserWidth / 2, 900);
+      ctx.save();
+      ctx.shadowColor = '#ff3155';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = 'rgba(255, 25, 65, 0.65)';
+      ctx.fillRect(beamLocalX - this.laserWidth / 2, -this.y, this.laserWidth, 1000);
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.fillRect(beamLocalX - 5, -this.y, 10, 1000);
+      ctx.restore();
     }
 
     // Camuflagem Ótica
@@ -3106,7 +3134,7 @@ class GameEngine {
     this.ui = new UIController(this);
     this.projectiles = [];
 
-    this.state = 'START'; // 'START', 'PLAYING', 'PAUSED', 'STAGE_CLEAR', 'VICTORY', 'GAMEOVER', 'SHOP', 'LEADERBOARD'
+    this.state = 'START'; // Sempre iniciar no menu principal
     this.previousState = 'START';
     this.score = 0;
     this.stageScore = 0;
@@ -3146,6 +3174,15 @@ class GameEngine {
     this.updateDifficultyUI();
     this.updateModeUI();
     this.renderLeaderboard();
+
+    // Garantia de inicialização: abrir no menu, nunca diretamente na batalha.
+    this.startScreen.classList.remove('hidden');
+    this.pauseScreen.classList.add('hidden');
+    this.stageClearScreen.classList.add('hidden');
+    this.victoryScreen.classList.add('hidden');
+    this.gameOverScreen.classList.add('hidden');
+    this.shopScreen.classList.add('hidden');
+    this.leaderboardModal.classList.add('hidden');
 
     this.lastTime = performance.now();
     requestAnimationFrame((t) => this.loop(t));
@@ -3350,7 +3387,8 @@ class GameEngine {
   }
 
   openShop() {
-    this.previousState = this.state;
+    if (this.state !== 'SHOP') this.previousState = this.state;
+    [this.startScreen, this.pauseScreen, this.stageClearScreen, this.gameOverScreen, this.leaderboardModal].forEach(el => el.classList.add('hidden'));
     this.state = 'SHOP';
     this.updateShopUI();
     this.shopScreen.classList.remove('hidden');
@@ -3358,15 +3396,13 @@ class GameEngine {
 
   closeShop() {
     this.shopScreen.classList.add('hidden');
-    this.state = this.previousState;
-    if (this.state === 'START') this.startScreen.classList.remove('hidden');
-    else if (this.state === 'PAUSED') this.pauseScreen.classList.remove('hidden');
-    else if (this.state === 'STAGE_CLEAR') this.stageClearScreen.classList.remove('hidden');
-    else if (this.state === 'GAMEOVER') this.gameOverScreen.classList.remove('hidden');
+    this.state = this.previousState || 'START';
+    this.restoreOverlayForState();
   }
 
   openLeaderboard() {
-    this.previousState = this.state;
+    if (this.state !== 'LEADERBOARD') this.previousState = this.state;
+    [this.startScreen, this.pauseScreen, this.stageClearScreen, this.gameOverScreen, this.shopScreen].forEach(el => el.classList.add('hidden'));
     this.state = 'LEADERBOARD';
     this.renderLeaderboard();
     this.leaderboardModal.classList.remove('hidden');
@@ -3374,9 +3410,15 @@ class GameEngine {
 
   closeLeaderboard() {
     this.leaderboardModal.classList.add('hidden');
-    this.state = this.previousState;
-    if (this.state === 'START') this.startScreen.classList.remove('hidden');
-    else if (this.state === 'PAUSED') this.pauseScreen.classList.remove('hidden');
+    this.state = this.previousState || 'START';
+    this.restoreOverlayForState();
+  }
+
+  restoreOverlayForState() {
+    const screens = { START: this.startScreen, PAUSED: this.pauseScreen, STAGE_CLEAR: this.stageClearScreen, GAMEOVER: this.gameOverScreen, VICTORY: this.victoryScreen };
+    Object.values(screens).forEach(el => el.classList.add('hidden'));
+    const target = screens[this.state] || this.startScreen;
+    target.classList.remove('hidden');
   }
 
   renderLeaderboard() {
@@ -4072,17 +4114,37 @@ class GameEngine {
 
   loop(timestamp) {
     const elapsed = (timestamp - this.lastTime) / 1000;
-    const dt = Number.isFinite(elapsed) ? Math.max(0, Math.min(elapsed, 0.05)) : 0;
+    const dt = Number.isFinite(elapsed) ? Math.max(0, Math.min(elapsed, 0.033)) : 0;
     this.lastTime = timestamp;
 
-    this.update(dt);
-    this.render();
-
-    requestAnimationFrame((t) => this.loop(t));
+    // Um erro pontual de renderização não deve encerrar o loop e congelar o jogo.
+    try {
+      this.update(dt);
+      this.render();
+    } catch (error) {
+      console.error('Erro durante o ciclo do jogo:', error);
+      this.state = this.state === 'START' ? 'START' : 'PAUSED';
+      if (this.state === 'START') this.startScreen.classList.remove('hidden');
+    } finally {
+      requestAnimationFrame((t) => this.loop(t));
+    }
   }
 }
 
 // Inicialização ao carregar a página
 window.addEventListener('DOMContentLoaded', () => {
+  // Limpa qualquer estado visual antigo e garante o menu antes de criar o jogo.
+  const startScreen = document.getElementById('startScreen');
+  if (startScreen) {
+    startScreen.classList.remove('hidden');
+    startScreen.style.display = 'flex';
+    startScreen.style.position = 'absolute';
+    startScreen.style.inset = '0';
+    startScreen.style.zIndex = '100';
+  }
+  ['pauseScreen', 'stageClearScreen', 'victoryScreen', 'gameOverScreen', 'shopScreen', 'leaderboardModal'].forEach(id => {
+    const screen = document.getElementById(id);
+    if (screen) screen.classList.add('hidden');
+  });
   new GameEngine();
 });
