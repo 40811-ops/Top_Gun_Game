@@ -39,7 +39,23 @@ enemySprites.su35 = new Image();
 enemySprites.su35.src = 'assets/enemies/su35.png';
 
 enemySprites.b2 = new Image();
+
 enemySprites.b2.src = 'assets/enemies/b2.png';
+
+// --- SPRITES DO CENÁRIO OCEÂNICO (mantidos em assets/cenario/oceano) ---
+const oceanSprites = {};
+const oceanSpritePaths = {
+  destroyer: 'assets/cenario/oceano/destroyer.png',
+  fragata: 'assets/cenario/oceano/fragata.png',
+  portaAvioes: 'assets/cenario/oceano/porta-avioes.png',
+  submarino: 'assets/cenario/oceano/submarino.png'
+};
+for (const [key, path] of Object.entries(oceanSpritePaths)) {
+  oceanSprites[key] = new Image();
+  oceanSprites[key].src = path;
+}
+const oceanBackgroundSprite = new Image();
+oceanBackgroundSprite.src = 'assets/cenario/oceano/mar.png';
 
 // --- 1. CONFIGURAÇÕES E DEFINIÇÕES DOS CAÇAS ---
 const PLANE_DATA = {
@@ -963,9 +979,11 @@ class SurfaceTarget {
     this.x = x;
     this.y = y;
     this.alive = true;
-    this.radius = type === 'warship' ? 36 : 18;
-    this.hp = type === 'warship' ? 140 : 45;
+    const navalTarget = ['warship', 'destroyer', 'fragata', 'portaAvioes', 'submarino'].includes(type);
+    this.radius = type === 'portaAvioes' ? 48 : type === 'destroyer' ? 31 : type === 'fragata' ? 23 : type === 'submarino' ? 22 : type === 'warship' ? 36 : 18;
+    this.hp = type === 'portaAvioes' ? 260 : type === 'destroyer' ? 170 : type === 'fragata' ? 105 : type === 'submarino' ? 120 : type === 'warship' ? 140 : 45;
     this.maxHp = this.hp;
+    this.isNavalTarget = navalTarget;
     this.shootTimer = Math.random() * 2.0 + 1.0;
     this.turretAngle = -Math.PI / 2;
   }
@@ -978,8 +996,8 @@ class SurfaceTarget {
 
     this.shootTimer -= dt;
     if (this.shootTimer <= 0 && this.y > 50 && this.y < 900) {
-      this.shootTimer = this.type === 'warship' ? 2.2 : 2.8;
-      const spd = (this.type === 'warship' ? 4.5 : 4.0) * bulletSpeedMult;
+      this.shootTimer = this.isNavalTarget ? 2.2 : 2.8;
+      const spd = (this.isNavalTarget ? 4.5 : 4.0) * bulletSpeedMult;
       enemyBullets.push(new EnemyBullet(
         this.x + Math.cos(this.turretAngle) * 16,
         this.y + Math.sin(this.turretAngle) * 16,
@@ -994,63 +1012,48 @@ class SurfaceTarget {
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    if (this.type === 'warship') {
+    if (this.isNavalTarget && oceanSprites[this.type]) {
+      const sprite = oceanSprites[this.type];
+      if (sprite.complete && sprite.naturalWidth > 0) {
+        let drawW = 48;
+        let drawH = 100;
+        if (this.type === 'destroyer') { drawW = 58; drawH = 118; }
+        else if (this.type === 'fragata') { drawW = 43; drawH = 82; }
+        else if (this.type === 'submarino') { drawW = 34; drawH = 112; }
+        else if (this.type === 'portaAvioes') { drawW = 132; drawH = 72; }
+        ctx.imageSmoothingEnabled = false;
+        if (this.type === 'portaAvioes') {
+          // A imagem do porta-aviões está na horizontal; giramos para a proa ficar para cima.
+          ctx.rotate(-Math.PI / 2);
+          ctx.drawImage(sprite, -drawW / 2, -drawH / 2, drawW, drawH);
+        } else {
+          ctx.drawImage(sprite, -drawW / 2, -drawH / 2, drawW, drawH);
+        }
+      } else {
+        ctx.fillStyle = '#263238';
+        ctx.fillRect(-this.radius * 0.45, -this.radius, this.radius * 0.9, this.radius * 2);
+      }
+    } else if (this.type === 'warship') {
+      // Aparência antiga mantida para compatibilidade com outros cenários.
       ctx.fillStyle = '#263238';
       ctx.beginPath();
-      ctx.moveTo(0, -42);
-      ctx.lineTo(14, -20);
-      ctx.lineTo(14, 38);
-      ctx.lineTo(-14, 38);
-      ctx.lineTo(-14, -20);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = '#455a64';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      ctx.fillStyle = '#37474f';
-      ctx.fillRect(-8, -12, 16, 32);
-
-      ctx.save();
-      ctx.translate(0, -18);
-      ctx.rotate(this.turretAngle);
-      ctx.fillStyle = '#1c2833';
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#90a4ae';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(0, -3); ctx.lineTo(16, -3);
-      ctx.moveTo(0, 3); ctx.lineTo(16, 3);
-      ctx.stroke();
+      ctx.moveTo(0, -42); ctx.lineTo(14, -20); ctx.lineTo(14, 38);
+      ctx.lineTo(-14, 38); ctx.lineTo(-14, -20); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#455a64'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#37474f'; ctx.fillRect(-8, -12, 16, 32);
+      ctx.save(); ctx.translate(0, -18); ctx.rotate(this.turretAngle);
+      ctx.fillStyle = '#1c2833'; ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#90a4ae'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(0, -3); ctx.lineTo(16, -3); ctx.moveTo(0, 3); ctx.lineTo(16, 3); ctx.stroke();
       ctx.restore();
     } else {
-      ctx.fillStyle = '#3e2723';
-      ctx.beginPath();
-      ctx.arc(0, 0, 16, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#4e342e';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.fillStyle = '#546e7a';
-      ctx.beginPath();
-      ctx.arc(0, 0, 11, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.save();
-      ctx.rotate(this.turretAngle);
-      ctx.fillStyle = '#212121';
-      ctx.beginPath();
-      ctx.arc(0, 0, 6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#ff9100';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(0, -2); ctx.lineTo(15, -2);
-      ctx.moveTo(0, 2); ctx.lineTo(15, 2);
-      ctx.stroke();
+      ctx.fillStyle = '#3e2723'; ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#4e342e'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#546e7a'; ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI * 2); ctx.fill();
+      ctx.save(); ctx.rotate(this.turretAngle); ctx.fillStyle = '#212121';
+      ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#ff9100'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(0, -2); ctx.lineTo(15, -2); ctx.moveTo(0, 2); ctx.lineTo(15, 2); ctx.stroke();
       ctx.restore();
     }
 
@@ -1074,6 +1077,8 @@ class ParallaxBackground {
     this.stageId = 'ocean';
 
     this.scrollOffset = 0;
+    this.oceanTextureOffset = 0;
+    this.oceanSpawnTimer = 0;
     this.scrollSpeed = 1.0;
     this.islands = [];
     this.surfaceTargets = [];
@@ -1185,6 +1190,25 @@ class ParallaxBackground {
       this.surfaceTargets = [];
     }
 
+    // O primeiro cenário usa o mar em imagem e embarcações reais como sprites.
+    // Não geramos ilhas aleatórias no oceano aberto.
+    if (this.stageId === 'ocean') {
+      this.oceanSpawnTimer = 2.5;
+      if (!preserveTargets) {
+        const fleet = ['destroyer', 'fragata', 'submarino', 'portaAvioes'];
+        const positions = [
+          { x: this.width * 0.25, y: this.height * 0.18 },
+          { x: this.width * 0.72, y: this.height * 0.43 },
+          { x: this.width * 0.35, y: this.height * 0.70 }
+        ];
+        positions.forEach((pos, i) => {
+          const type = fleet[i === 2 ? 2 : i];
+          this.surfaceTargets.push(new SurfaceTarget(type, pos.x, pos.y));
+        });
+      }
+      return;
+    }
+
     for (let i = 0; i < 5; i++) {
       const radius = Math.random() * 38 + 32;
       const island = {
@@ -1216,6 +1240,20 @@ class ParallaxBackground {
 
   update(dt, enemyBullets, playerX, playerY, bulletSpeedMult) {
     this.scrollOffset = (this.scrollOffset + this.scrollSpeed * dt * 60) % 60;
+    this.oceanTextureOffset += this.scrollSpeed * dt * 34;
+
+    // Repõe embarcações destruídas para manter o cenário oceânico ativo.
+    if (this.stageId === 'ocean') {
+      this.oceanSpawnTimer -= dt;
+      if (this.oceanSpawnTimer <= 0 && this.surfaceTargets.length < 3) {
+        const fleet = ['destroyer', 'fragata', 'submarino', 'portaAvioes'];
+        const type = fleet[Math.floor(Math.random() * fleet.length)];
+        const margin = type === 'portaAvioes' ? 90 : 55;
+        const x = margin + Math.random() * (this.width - margin * 2);
+        this.surfaceTargets.push(new SurfaceTarget(type, x, -130));
+        this.oceanSpawnTimer = 2.0 + Math.random() * 2.0;
+      }
+    }
 
     // Atualiza transição suave com dissolução cruzada entre cenários
     if (this.isTransitioning) {
@@ -1271,7 +1309,7 @@ class ParallaxBackground {
       }
     }
 
-    // Ilhas e Terrenos
+    // Ilhas e Terrenos (não existem no oceano aberto)
     for (let is of this.islands) {
       is.y += this.scrollSpeed * dt * 60;
       if (is.y > this.height + 120) {
@@ -1297,7 +1335,22 @@ class ParallaxBackground {
     ctx.save();
     ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
 
-    // 1. Fundo do Bioma
+    // 1. Fundo do Bioma: textura de mar personalizada no primeiro cenário.
+    if (stageId === 'ocean' && oceanBackgroundSprite.complete && oceanBackgroundSprite.naturalWidth > 0) {
+      const tileW = this.width;
+      const tileH = oceanBackgroundSprite.height * (tileW / oceanBackgroundSprite.width);
+      const offset = this.oceanTextureOffset % tileH;
+      ctx.fillStyle = '#06172b';
+      ctx.fillRect(0, 0, this.width, this.height);
+      ctx.drawImage(oceanBackgroundSprite, 0, offset - tileH, tileW, tileH);
+      ctx.drawImage(oceanBackgroundSprite, 0, offset, tileW, tileH);
+      // Camada escura discreta para manter os aviões e os navios legíveis.
+      ctx.fillStyle = 'rgba(2, 10, 24, 0.10)';
+      ctx.fillRect(0, 0, this.width, this.height);
+      ctx.restore();
+      return;
+    }
+
     const grad = ctx.createLinearGradient(0, 0, 0, this.height);
     if (stageId === 'ocean') {
       grad.addColorStop(0, '#091c33'); grad.addColorStop(1, '#051021');
@@ -1426,8 +1479,8 @@ class ParallaxBackground {
       st.draw(ctx);
     }
 
-    // Nuvens Semi-Transparentes em Paralaxe (círculos orgânicos e suaves)
-    for (let c of this.clouds) {
+    // Nuvens só aparecem nos outros biomas; no oceano usamos a textura do mar limpa.
+    if (this.stageId !== 'ocean') for (let c of this.clouds) {
       ctx.save();
       ctx.translate(c.x, c.y);
       ctx.scale(c.scale, c.scale);
@@ -3651,9 +3704,10 @@ class GameEngine {
             hitSurface = true;
             if (st.hp <= 0) {
               st.alive = false;
-              this.particles.addExplosion(st.x, st.y, st.type === 'warship' ? 45 : 25, st.type === 'warship');
-              this.enemyMgr.dropCoins(st.x, st.y, st.type === 'warship' ? 6 : 2);
-              this.addScore(st.type === 'warship' ? 500 : 200);
+              const naval = st.isNavalTarget || st.type === 'warship';
+              this.particles.addExplosion(st.x, st.y, naval ? 45 : 25, naval);
+              this.enemyMgr.dropCoins(st.x, st.y, naval ? 6 : 2);
+              this.addScore(naval ? (st.type === 'portaAvioes' ? 1200 : st.type === 'destroyer' ? 700 : 500) : 200);
             }
             break;
           }
