@@ -567,14 +567,15 @@ canvas {
 
 .garage-carousel {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   justify-content: center;
   padding-bottom: 4px;
 }
 
 .plane-card {
-  flex: 0 0 105px;
+  flex: 1 1 0;
+  min-width: 0;
   background: rgba(0, 20, 10, 0.95);
   border: 1.5px solid rgba(0, 255, 0, 0.2);
   border-radius: 2px;
@@ -640,8 +641,8 @@ canvas {
 /* Pedestal Geométrico */
 .plane-pedestal {
   position: relative;
-  width: 80px;
-  height: 90px;
+  width: 96px;
+  height: 104px;
   margin: 0 auto 4px;
   display: flex;
   flex-direction: column;
@@ -649,17 +650,19 @@ canvas {
   justify-content: center;
 }
 
-.plane-sprite-canvas {
-  width: 64px;
-  height: 64px;
+.plane-sprite-image {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   display: block;
   position: relative;
   z-index: 2;
+  filter: drop-shadow(0 0 3px rgba(0, 255, 255, 0.22));
 }
 
-.plane-card.active .plane-sprite-canvas {
+.plane-card.active .plane-sprite-image {
   filter: drop-shadow(0 0 6px rgba(0, 255, 65, 0.5));
 }
 
@@ -729,56 +732,6 @@ canvas {
   color: #00ffff;
   text-shadow: 0 0 4px rgba(0, 255, 255, 0.3);
 }
-
-/* Seletor de Skins */
-.skins-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.skin-btn {
-  background: rgba(5, 18, 14, 0.88);
-  border: 1.5px solid rgba(0, 255, 0, 0.3);
-  border-radius: 2px;
-  padding: 6px 4px;
-  color: #a0c0a8;
-  font-family: 'Courier New', monospace;
-  font-size: 9.5px;
-  font-weight: 900;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-
-.skin-btn:hover {
-  border-color: #00FF00;
-  color: #00FF00;
-}
-
-.skin-btn.active {
-  border-color: #00FF00;
-  background: rgba(0, 255, 0, 0.2);
-  color: #00FF00;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
-}
-
-.skin-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.skin-dot-default { background: linear-gradient(135deg, #4a5d6e, #00FFFF); }
-.skin-dot-desert { background: linear-gradient(135deg, #c2a649, #6d5328); }
-.skin-dot-stealth { background: linear-gradient(135deg, #121214, #FF0033); }
-.skin-dot-neon { background: linear-gradient(135deg, #00FF00, #00FFFF); }
 
 /* Painel de Atributos do Caça */
 .fighter-details-card {
@@ -1221,4 +1174,15 @@ canvas {
   font-weight: 800;
   color: #fff;
   text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+/* Garagem responsiva: aeronaves visíveis sem deformação em telas estreitas */
+@media (max-width: 420px) {
+  .garage-section { padding: 8px 5px; }
+  .garage-carousel { gap: 4px; }
+  .plane-card { padding: 6px 2px; }
+  .plane-pedestal { width: 100%; height: 82px; }
+  .plane-sprite-image { width: 72px; height: 72px; }
+  .plane-designation { font-size: 8px; letter-spacing: 0; }
+  .plane-role-tag { font-size: 6.5px; letter-spacing: 0; }
 }

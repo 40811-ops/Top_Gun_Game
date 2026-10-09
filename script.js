@@ -2,7 +2,7 @@
  * TOP GUN ARCADE - SISTEMA COMPLETO DE COMBATE AÉREO EXPERT
  * HTML5 Canvas 2D + Web Audio API Sintetizada (Trilha Sonora Synthwave & SFX em Tempo Real)
  * Modos: Campanha (5 Estágios Sequenciais com Chefes) e Sobrevivência (Infinito)
- * Controles de Toque com Interpolação Lerp, Sistema de Aquecimento, Barrel Roll, Super Bomba e Skins
+ * Controles de Toque, Sistema de Aquecimento, Barrel Roll e Super Bomba
  */
 
 // --- CARREGAMENTO DE SPRITES DAS NAVES DO JOGADOR (PIXEL ART) ---
@@ -106,46 +106,6 @@ const PLANE_DATA = {
 };
 // Alias para compatibilidade caso haja salvamentos antigos
 PLANE_DATA.su57 = PLANE_DATA.fa18;
-
-// --- PALETAS DE CORES DAS SKINS (PINTURAS) ---
-const SKIN_DATA = {
-  default: {
-    id: 'default',
-    name: 'Padrão',
-    f14: { body: '#4a5d6e', wing: '#37474f', trim: '#00e5ff', canopy: '#80deea' },
-    f22: { body: '#37474f', wing: '#263238', trim: '#00e5ff', canopy: '#ffd54f' },
-    fa18: { body: '#2e3b4e', wing: '#1c2833', trim: '#ff9100', canopy: '#ffb74d' },
-    su57: { body: '#2e3b4e', wing: '#1c2833', trim: '#ff9100', canopy: '#ffb74d' },
-    a10: { body: '#3e4a3d', wing: '#2b332a', trim: '#ff1744', canopy: '#fff59d' }
-  },
-  desert: {
-    id: 'desert',
-    name: 'Camuflado Deserto',
-    f14: { body: '#c2a649', wing: '#8c733e', trim: '#dfcf9f', canopy: '#ffe082' },
-    f22: { body: '#bfa15f', wing: '#7d6328', trim: '#e5d4a6', canopy: '#ffe082' },
-    fa18: { body: '#aa8c4c', wing: '#6e5623', trim: '#f0e2b6', canopy: '#ffca28' },
-    su57: { body: '#aa8c4c', wing: '#6e5623', trim: '#f0e2b6', canopy: '#ffca28' },
-    a10: { body: '#967d3e', wing: '#59441a', trim: '#e8d7a7', canopy: '#ffd54f' }
-  },
-  stealth: {
-    id: 'stealth',
-    name: 'Preto Furtivo',
-    f14: { body: '#141418', wing: '#0d0d10', trim: '#ff1744', canopy: '#ff5252' },
-    f22: { body: '#121214', wing: '#0a0a0c', trim: '#ff1744', canopy: '#ff1744' },
-    fa18: { body: '#18181c', wing: '#0f0f12', trim: '#ff3d00', canopy: '#ff3d00' },
-    su57: { body: '#18181c', wing: '#0f0f12', trim: '#ff3d00', canopy: '#ff3d00' },
-    a10: { body: '#16161a', wing: '#0c0c0e', trim: '#d50000', canopy: '#ff1744' }
-  },
-  neon: {
-    id: 'neon',
-    name: 'Néon Retro',
-    f14: { body: '#2a0845', wing: '#6441a5', trim: '#00e5ff', canopy: '#00e5ff' },
-    f22: { body: '#1f0036', wing: '#4a0072', trim: '#d500f9', canopy: '#ff4081' },
-    fa18: { body: '#31004a', wing: '#6a0080', trim: '#00e5ff', canopy: '#d500f9' },
-    su57: { body: '#31004a', wing: '#6a0080', trim: '#00e5ff', canopy: '#d500f9' },
-    a10: { body: '#3b0042', wing: '#7b1fa2', trim: '#ff007f', canopy: '#00e5ff' }
-  }
-};
 
 // --- DIFICULDADES ---
 const DIFFICULTY_MODS = {
@@ -340,7 +300,6 @@ class StorageManager {
       gold: parseInt(localStorage.getItem('topgun_gold') || '0', 10),
       highScore: parseInt(localStorage.getItem('topgun_highscore') || '0', 10),
       plane: savedPlane,
-      skin: localStorage.getItem('topgun_skin') || 'default',
       difficulty: localStorage.getItem('topgun_difficulty') || 'medium',
       mode: localStorage.getItem('topgun_mode') || 'campaign',
       upgrades: upgrades,
@@ -352,7 +311,7 @@ class StorageManager {
     localStorage.setItem('topgun_gold', data.gold.toString());
     localStorage.setItem('topgun_highscore', data.highScore.toString());
     localStorage.setItem('topgun_plane', data.plane);
-    localStorage.setItem('topgun_skin', data.skin);
+    localStorage.removeItem('topgun_skin'); // limpa a preferência antiga de pintura
     localStorage.setItem('topgun_difficulty', data.difficulty);
     localStorage.setItem('topgun_mode', data.mode);
     localStorage.setItem('topgun_upgrades', JSON.stringify(data.upgrades));
@@ -1996,9 +1955,9 @@ class EnemyBullet {
   }
 }
 
-// --- 10. JOGADOR (Player) COM SISTEMA DE AQUECIMENTO, BARREL ROLL & SKINS ---
+// --- 10. JOGADOR (Player) COM SISTEMA DE AQUECIMENTO E BARREL ROLL ---
 class Player {
-  constructor(x, y, planeType, skinType, upgrades) {
+  constructor(x, y, planeType, upgrades) {
     this.x = x;
     this.y = y;
     this.targetX = x;
@@ -2009,9 +1968,9 @@ class Player {
     // Chave da nave ativa (garante uso de 'f14', 'f22', 'fa18', 'a10', mapeando su57 para fa18)
     this.currentShip = (planeType === 'su57' || planeType === 'fa18') ? 'fa18' : (planeType || 'f14');
     this.planeType = this.currentShip;
-    this.skinType = skinType;
     this.data = PLANE_DATA[this.currentShip] || PLANE_DATA.fa18;
-    this.skin = SKIN_DATA[skinType] ? (SKIN_DATA[skinType][this.currentShip] || SKIN_DATA[skinType].fa18) : SKIN_DATA.default[this.currentShip];
+    const engineColors = { f14: '#00e5ff', f22: '#00e5ff', fa18: '#ff9100', a10: '#ff1744' };
+    this.engineColor = engineColors[this.currentShip] || '#00e5ff'; // cor fixa por aeronave
 
     // Upgrades da Loja
     const armorBonus = 1 + (upgrades.armor || 0) * 0.15;
@@ -2347,7 +2306,7 @@ class Player {
     // Turbinas
     if (this.stealthTimer <= 0) {
       const engineY = this.y + 24;
-      const flameColor = this.overdriveActive ? '#ff3d00' : (this.skin.trim || null);
+      const flameColor = this.overdriveActive ? '#ff3d00' : this.engineColor;
       particles.addAfterburner(this.x - 9, engineY, this.vx * 0.3, this.vy, flameColor);
       particles.addAfterburner(this.x + 9, engineY, this.vx * 0.3, this.vy, flameColor);
     }
@@ -2431,10 +2390,10 @@ class Enemy {
 
     // Escalas Corretas e Realistas (Renderização e Hitbox)
     if (this.type === 'mig21') {
-      // 'mig21' (Inimigo Ligeiro): width: 48, height: 48
-      this.width = 48;
-      this.height = 48;
-      this.radius = 24;
+      // Inimigo ligeiro ampliado para ficar legível durante o combate
+      this.width = 64;
+      this.height = 64;
+      this.radius = 30;
       this.hp = Math.round(40 * hpMult);
       this.maxHp = this.hp;
       this.scoreVal = 100;
@@ -2442,10 +2401,10 @@ class Enemy {
       this.zigzag = Math.random() > 0.5;
       this.shootTimer = Math.random() * 0.8 + 0.8;
     } else if (this.type === 'mig29') {
-      // 'mig29' (Inimigo Médio): width: 64, height: 64
-      this.width = 64;
-      this.height = 64;
-      this.radius = 32;
+      // Inimigo médio ampliado com hitbox proporcional
+      this.width = 84;
+      this.height = 84;
+      this.radius = 39;
       this.hp = Math.round(110 * hpMult);
       this.maxHp = this.hp;
       this.scoreVal = 220;
@@ -2454,20 +2413,20 @@ class Enemy {
       this.pauseTimer = 1.4;
       this.shotFired = false;
     } else if (this.type === 'su35') {
-      // 'su35' (Caça Pesado Flanker-E): width: 80, height: 80 - Separado explicitamente do su57
-      this.width = 80;
-      this.height = 80;
-      this.radius = 40;
+      // Caça pesado ampliado
+      this.width = 104;
+      this.height = 104;
+      this.radius = 48;
       this.hp = Math.round(230 * hpMult);
       this.maxHp = this.hp;
       this.scoreVal = 420;
       this.speedY = 1.6;
       this.shootTimer = 1.2;
     } else if (this.type === 'su57') {
-      // 'su57' (Caça Furtivo/Elite): width: 80, height: 80 - Separado explicitamente do su35
-      this.width = 80;
-      this.height = 80;
-      this.radius = 40;
+      // Caça furtivo de elite ampliado
+      this.width = 104;
+      this.height = 104;
+      this.radius = 48;
       this.hp = Math.round(280 * hpMult);
       this.maxHp = this.hp;
       this.scoreVal = 520;
@@ -3126,8 +3085,7 @@ class GameEngine {
     if (this.saveData.plane === 'su57') {
       this.saveData.plane = 'fa18';
     }
-    this.selectedPlane = this.saveData.plane;
-    this.selectedSkin = this.saveData.skin;
+    this.selectedPlane = ['f14', 'f22', 'fa18', 'a10'].includes(this.saveData.plane) ? this.saveData.plane : 'f14';
     this.selectedDifficulty = this.saveData.difficulty;
     this.gameMode = this.saveData.mode; // 'campaign' ou 'survival'
     this.totalGold = this.saveData.gold;
@@ -3144,7 +3102,7 @@ class GameEngine {
     this.particles = new ParticleSystem();
     this.weather = new WeatherSystem(this.width, this.height);
     this.enemyMgr = new EnemyManager(this.width, this.height);
-    this.player = new Player(this.width / 2, 750, this.selectedPlane, this.selectedSkin, this.upgrades);
+    this.player = new Player(this.width / 2, 750, this.selectedPlane, this.upgrades);
     this.ui = new UIController(this);
     this.projectiles = [];
 
@@ -3185,7 +3143,6 @@ class GameEngine {
     this.bindEvents();
     this.updateShopUI();
     this.updatePlaneSelectionUI();
-    this.updateSkinSelectionUI();
     this.updateDifficultyUI();
     this.updateModeUI();
     this.renderLeaderboard();
@@ -3274,14 +3231,6 @@ class GameEngine {
       });
     });
 
-    // Skins
-    document.querySelectorAll('.skin-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const skin = e.currentTarget.dataset.skin;
-        this.selectSkin(skin);
-      });
-    });
-
     // Botões Virtuais de Toque
     this.touchRollBtn.addEventListener('click', () => { this.input.rollPressed = true; });
     this.touchSpecialBtn.addEventListener('click', () => { this.input.specialPressed = true; });
@@ -3316,7 +3265,7 @@ class GameEngine {
   }
 
   selectPlane(planeId) {
-    if (planeId === 'su57') planeId = 'fa18';
+    if (!['f14', 'f22', 'fa18', 'a10'].includes(planeId)) return;
     this.selectedPlane = planeId;
     this.saveData.plane = planeId;
     StorageManager.save(this.saveData);
@@ -3325,17 +3274,8 @@ class GameEngine {
 
   updatePlaneSelectionUI() {
     document.querySelectorAll('.plane-card').forEach(card => {
-      const p = card.dataset.plane === 'su57' ? 'fa18' : card.dataset.plane;
-      card.classList.toggle('active', p === this.selectedPlane);
+      card.classList.toggle('active', card.dataset.plane === this.selectedPlane);
     });
-
-    const suCard = document.querySelector('.plane-card[data-plane="su57"]');
-    if (suCard) {
-      const nameEl = suCard.querySelector('.plane-name');
-      if (nameEl && !nameEl.innerText.includes('F/A-18')) nameEl.innerText = 'F/A-18';
-      const roleEl = suCard.querySelector('.plane-role');
-      if (roleEl && !roleEl.innerText.includes('Multifunção')) roleEl.innerText = 'Multifunção';
-    }
 
     const data = PLANE_DATA[this.selectedPlane] || PLANE_DATA.fa18;
     document.getElementById('fighterDetailTitle').innerText = data.name.toUpperCase();
@@ -3345,19 +3285,6 @@ class GameEngine {
     document.getElementById('statArmorFill').style.width = `${data.statArmor}%`;
     document.getElementById('statDamageFill').style.width = `${data.statDamage}%`;
     this.touchSpecialLabel.innerText = `[${data.specialName}]`;
-  }
-
-  selectSkin(skinId) {
-    this.selectedSkin = skinId;
-    this.saveData.skin = skinId;
-    StorageManager.save(this.saveData);
-    this.updateSkinSelectionUI();
-  }
-
-  updateSkinSelectionUI() {
-    document.querySelectorAll('.skin-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.skin === this.selectedSkin);
-    });
   }
 
   getUpgradeCost(type) {
@@ -3490,7 +3417,7 @@ class GameEngine {
     this.background.setStage(this.currentStageInfo.id);
     this.weather.setStage(this.currentStageInfo.id);
 
-    this.player = new Player(this.width / 2, 750, this.selectedPlane, this.selectedSkin, this.upgrades);
+    this.player = new Player(this.width / 2, 750, this.selectedPlane, this.upgrades);
 
     this.startScreen.classList.add('hidden');
     this.pauseScreen.classList.add('hidden');
@@ -4144,7 +4071,8 @@ class GameEngine {
   }
 
   loop(timestamp) {
-    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.1);
+    const elapsed = (timestamp - this.lastTime) / 1000;
+    const dt = Number.isFinite(elapsed) ? Math.max(0, Math.min(elapsed, 0.05)) : 0;
     this.lastTime = timestamp;
 
     this.update(dt);

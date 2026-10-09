@@ -63,7 +63,7 @@
       </button>
     </div>
 
-    <!-- TELA INICIAL (MENU PRINCIPAL, SELEÇÃO DE MODOS, DIFICULDADE, GARAGEM & SKINS) -->
+    <!-- TELA INICIAL (MENU PRINCIPAL, MODOS, DIFICULDADE E GARAGEM) -->
     <div id="startScreen" class="screen-overlay">
       <h1 class="title-logo">TOP GUN</h1>
       <div class="subtitle-badge">ARCADE COMBAT EXPERT</div>
@@ -118,7 +118,7 @@
         <div class="garage-carousel" id="garageCarousel">
           <div class="plane-card" data-plane="f14">
             <div class="plane-pedestal">
-              <canvas class="plane-sprite-canvas" id="garageSprite_f14" width="80" height="80"></canvas>
+              <img class="plane-sprite-image" src="assets/f14.png" alt="Aeronave F-14 Tomcat" width="96" height="96">
               <div class="pedestal-base"></div>
               <div class="pedestal-glow"></div>
             </div>
@@ -127,16 +127,16 @@
           </div>
           <div class="plane-card" data-plane="f22">
             <div class="plane-pedestal">
-              <canvas class="plane-sprite-canvas" id="garageSprite_f22" width="80" height="80"></canvas>
+              <img class="plane-sprite-image" src="assets/f22.png" alt="Aeronave F-22 Raptor" width="96" height="96">
               <div class="pedestal-base"></div>
               <div class="pedestal-glow"></div>
             </div>
             <div class="plane-designation">F-22 RAPTOR</div>
             <div class="plane-role-tag">FURTIVO / VELOZ</div>
           </div>
-          <div class="plane-card" data-plane="su57">
+          <div class="plane-card" data-plane="fa18">
             <div class="plane-pedestal">
-              <canvas class="plane-sprite-canvas" id="garageSprite_fa18" width="80" height="80"></canvas>
+              <img class="plane-sprite-image" src="assets/fa18.png" alt="Aeronave F/A-18 Hornet" width="96" height="96">
               <div class="pedestal-base"></div>
               <div class="pedestal-glow"></div>
             </div>
@@ -145,36 +145,13 @@
           </div>
           <div class="plane-card" data-plane="a10">
             <div class="plane-pedestal">
-              <canvas class="plane-sprite-canvas" id="garageSprite_a10" width="80" height="80"></canvas>
+              <img class="plane-sprite-image" src="assets/a10.png" alt="Aeronave A-10 Warthog" width="96" height="96">
               <div class="pedestal-base"></div>
               <div class="pedestal-glow"></div>
             </div>
             <div class="plane-designation">A-10 WARTHOG</div>
             <div class="plane-role-tag">SUPER-PESADO GAU-8</div>
           </div>
-        </div>
-      </div>
-
-      <!-- 4. Seletor de Pinturas / Skins Visualmente Selecionáveis -->
-      <div class="difficulty-container">
-        <div class="section-title">PADRÃO DE CAMUFLAGEM (SKIN)</div>
-        <div class="skins-grid" id="skinsGrid">
-          <button class="skin-btn active" data-skin="default">
-            <span class="skin-dot skin-dot-default"></span>
-            Padrão
-          </button>
-          <button class="skin-btn" data-skin="desert">
-            <span class="skin-dot skin-dot-desert"></span>
-            Deserto
-          </button>
-          <button class="skin-btn" data-skin="stealth">
-            <span class="skin-dot skin-dot-stealth"></span>
-            Preto Furtivo
-          </button>
-          <button class="skin-btn" data-skin="neon">
-            <span class="skin-dot skin-dot-neon"></span>
-            Néon Retro
-          </button>
         </div>
       </div>
 
