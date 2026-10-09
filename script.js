@@ -4131,8 +4131,30 @@ class GameEngine {
   }
 }
 
+// Escala uniforme para PC, tablet e celular, sem deformar o formato 9:16.
+function fitGameToViewport() {
+  const container = document.getElementById('game-container');
+  if (!container) return;
+  const logicalWidth = 540;
+  const logicalHeight = 960;
+  const viewportWidth = Math.max(1, window.innerWidth || document.documentElement.clientWidth);
+  const viewportHeight = Math.max(1, window.innerHeight || document.documentElement.clientHeight);
+  const availableWidth = Math.max(1, viewportWidth - 16);
+  const availableHeight = Math.max(1, viewportHeight - 16);
+  const scale = Math.min(availableWidth / logicalWidth, availableHeight / logicalHeight);
+  container.style.setProperty('--game-scale', String(scale));
+  container.style.setProperty('--game-scaled-width', `${logicalWidth * scale}px`);
+  container.style.setProperty('--game-scaled-height', `${logicalHeight * scale}px`);
+}
+window.addEventListener('resize', fitGameToViewport, { passive: true });
+window.addEventListener('orientationchange', fitGameToViewport, { passive: true });
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', fitGameToViewport, { passive: true });
+}
+
 // Inicialização ao carregar a página
 window.addEventListener('DOMContentLoaded', () => {
+  fitGameToViewport();
   // Limpa qualquer estado visual antigo e garante o menu antes de criar o jogo.
   const startScreen = document.getElementById('startScreen');
   if (startScreen) {
