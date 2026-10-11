@@ -63,95 +63,99 @@
       </button>
     </div>
 
-    <!-- TELA INICIAL (MENU PRINCIPAL, MODOS, DIFICULDADE E GARAGEM) -->
+    <!-- 1. TELA INICIAL — MENU PRINCIPAL COM SOMENTE TRÊS OPÇÕES -->
     <div id="startScreen" class="screen-overlay">
       <h1 class="title-logo">TOP GUN</h1>
       <div class="subtitle-badge">TACTICAL RADAR // AIR COMBAT</div>
 
-      <div class="currency-display">
-        <span>CRÉDITOS</span>
+      <div class="currency-display" style="margin-bottom: 24px;">
+        <span>CRÉDITOS:</span>
         <span id="menuGoldDisplay">0</span>
       </div>
 
-      <!-- 1. Seletor de Modo de Jogo Principal -->
-      <div class="mode-select-container">
-        <div class="section-title">MODO DE MISSÃO</div>
-        <div class="mode-grid">
-          <button class="mode-btn active" id="modeCampaignBtn" data-mode="campaign">
-            <span class="mode-btn-title">CAMPANHA</span>
-            <small class="mode-btn-desc">5 Estágios com Chefes e Briefing Militar</small>
-          </button>
-          <button class="mode-btn" id="modeSurvivalBtn" data-mode="survival">
-            <span class="mode-btn-title">SOBREVIVÊNCIA</span>
-            <small class="mode-btn-desc">Sobrevivência Dinâmica (Escala a cada 500 pts)</small>
-          </button>
-        </div>
+      <!-- Três opções exclusivas do Menu Principal -->
+      <nav class="main-menu-container" aria-label="Menu Principal">
+        <button id="mainMenuCampaignBtn" class="main-menu-btn" type="button">
+          <span class="main-menu-btn-title">1. MODO HISTÓRIA</span>
+          <small class="main-menu-btn-desc">Campanha com 6 fases, objetivos e desbloqueio de caças</small>
+        </button>
+
+        <button id="mainMenuSurvivalBtn" class="main-menu-btn" type="button">
+          <span class="main-menu-btn-title">2. MODO INFINITO</span>
+          <small class="main-menu-btn-desc">Hangar, seleção de caças desbloqueados e batalha contínua</small>
+        </button>
+
+        <button id="mainMenuSettingsBtn" class="main-menu-btn" type="button">
+          <span class="main-menu-btn-title">3. CONFIGURAÇÕES</span>
+          <small class="main-menu-btn-desc">Ajustes de áudio synthwave, efeitos e guia tático</small>
+        </button>
+      </nav>
+
+      <div class="menu-footer-badge">
+        <span>TOP GUN ARCADE // SISTEMA DE DEFESA AÉREA V2.5</span>
+      </div>
+    </div>
+
+
+    <!-- 2. SELEÇÃO DE FASES DA HISTÓRIA (MODO HISTÓRIA) -->
+    <div id="missionSelectScreen" class="screen-overlay hidden">
+      <h2 class="title-logo" style="font-size: 26px;">MODO HISTÓRIA</h2>
+      <div class="subtitle-badge">CAMPANHA TOP GUN — SELEÇÃO DE FASES</div>
+
+      <div id="missionList" class="mission-list"></div>
+
+      <section id="missionBriefing" class="mission-briefing" aria-live="polite">
+        <h3>CONTEXTO DA MISSÃO</h3>
+        <p>Selecione uma fase para ler o briefing e verificar a aeronave designada.</p>
+      </section>
+
+      <div class="mission-actions">
+        <button id="backToMenuBtn" class="arcade-btn" type="button">VOLTAR AO MENU</button>
+        <button id="launchSelectedMissionBtn" class="arcade-btn launch-btn" type="button">INICIAR FASE</button>
+      </div>
+      <p class="mission-footnote">A campanha começa com a Fase 1 desbloqueada. Conclua cada missão para liberar a seguinte. A Fase 6 Bônus é liberada após a Fase 5.</p>
+    </div>
+
+
+    <!-- 3. HANGAR DO MODO INFINITO (SELEÇÃO DE CAÇAS, DIFICULDADE, UPGRADES E RECORDES) -->
+    <div id="hangarScreen" class="screen-overlay hidden">
+      <h2 class="title-logo" style="font-size: 26px;">MODO INFINITO</h2>
+      <div class="subtitle-badge">HANGAR TÁTICO & PREPARAÇÃO DE VOO</div>
+
+      <div class="currency-display" style="margin-bottom: 10px;">
+        <span>CRÉDITOS:</span>
+        <span id="hangarGoldDisplay">0</span>
       </div>
 
-      <!-- 2. Seletor de Dificuldade -->
+      <!-- Seletor de Dificuldade -->
       <div class="difficulty-container">
-        <div class="section-title">DIFICULDADE</div>
+        <div class="section-title">DIFICULDADE DO COMBATE</div>
         <div class="difficulty-grid">
-          <button class="diff-btn" data-diff="easy">
+          <button class="diff-btn" data-diff="easy" type="button">
             RECRUTA
             <small>Fácil (1x)</small>
           </button>
-          <button class="diff-btn active" data-diff="medium">
+          <button class="diff-btn active" data-diff="medium" type="button">
             PILOTO
             <small>Médio (1.5x)</small>
           </button>
-          <button class="diff-btn" data-diff="hard">
+          <button class="diff-btn" data-diff="hard" type="button">
             ÁS
             <small>Difícil (2x)</small>
           </button>
-          <button class="diff-btn" data-diff="nightmare">
+          <button class="diff-btn" data-diff="nightmare" type="button">
             TOP GUN
             <small>Pesadelo (3x)</small>
           </button>
         </div>
       </div>
 
-      <!-- 3. GARAGEM DE CAÇAS (Tela Tática com Sprites Reais) -->
+      <!-- Garagem de Caças Disponíveis e Desbloqueados -->
       <div class="garage-section">
-        <div class="section-title garage-title">AERONAVES DISPONÍVEIS</div>
-        <div class="garage-subtitle">SELECIONE SEU CAÇA</div>
+        <div class="section-title garage-title">AERONAVES DO HANGAR</div>
+        <div class="garage-subtitle">SELECIONE SEU CAÇA PARA O MODO INFINITO</div>
         <div class="garage-carousel" id="garageCarousel">
-          <div class="plane-card" data-plane="f14">
-            <div class="plane-pedestal">
-              <img class="plane-sprite-image" src="assets/f14.png" alt="Aeronave F-14 Tomcat" width="96" height="96">
-              <div class="pedestal-base"></div>
-              <div class="pedestal-glow"></div>
-            </div>
-            <div class="plane-designation">F-14 TOMCAT</div>
-            <div class="plane-role-tag">EQUILIBRADO</div>
-          </div>
-          <div class="plane-card" data-plane="f22">
-            <div class="plane-pedestal">
-              <img class="plane-sprite-image" src="assets/f22.png" alt="Aeronave F-22 Raptor" width="96" height="96">
-              <div class="pedestal-base"></div>
-              <div class="pedestal-glow"></div>
-            </div>
-            <div class="plane-designation">F-22 RAPTOR</div>
-            <div class="plane-role-tag">FURTIVO / VELOZ</div>
-          </div>
-          <div class="plane-card" data-plane="fa18">
-            <div class="plane-pedestal">
-              <img class="plane-sprite-image" src="assets/fa18.png" alt="Aeronave F/A-18 Hornet" width="96" height="96">
-              <div class="pedestal-base"></div>
-              <div class="pedestal-glow"></div>
-            </div>
-            <div class="plane-designation">F/A-18 HORNET</div>
-            <div class="plane-role-tag">MULTIFUNCAO / ATAQUE</div>
-          </div>
-          <div class="plane-card" data-plane="a10">
-            <div class="plane-pedestal">
-              <img class="plane-sprite-image" src="assets/a10.png" alt="Aeronave A-10 Warthog" width="96" height="96">
-              <div class="pedestal-base"></div>
-              <div class="pedestal-glow"></div>
-            </div>
-            <div class="plane-designation">A-10 WARTHOG</div>
-            <div class="plane-role-tag">SUPER-PESADO GAU-8</div>
-          </div>
+          <!-- Aeronaves preenchidas dinamicamente pelo script.js -->
         </div>
       </div>
 
@@ -170,7 +174,7 @@
           <div class="stat-bar-track"><div id="statDamageFill" class="stat-bar-fill" style="width: 65%; background: #ff9100;"></div></div>
         </div>
         <p id="fighterDetailDesc" class="fighter-desc">
-          Caça lendário com asas de geometria variável. Equilibrado em todos os aspectos. Dispara 6 mísseis guiados Phoenix simultâneos ao ativar 'Q'.
+          Caça lendário com asas de geometria variável. Equilibrado em todos os aspectos.
         </p>
       </div>
 
@@ -180,18 +184,55 @@
         <p><span class="key-badge">WASD / SETAS</span> mover · <span class="key-badge">ESPAÇO</span> atirar</p>
         <p><span class="key-badge">SHIFT</span> esquivar · <span class="key-badge">Q</span> especial · <span class="key-badge">K</span> míssil</p>
         <p><span class="key-badge">X</span> bomba · <span class="key-badge">E</span> foco</p>
-        <p class="tip-note">Dica: solte o disparo às vezes para a arma esfriar.</p>
       </div>
 
-      <!-- Botões de Ação do Menu -->
+      <!-- Botões de Ação do Hangar -->
       <div class="menu-action-buttons">
-        <button id="openShopBtn" class="arcade-btn gold-btn">UPGRADES</button>
-        <button id="openLeaderboardBtn" class="arcade-btn leader-btn">RECORDES</button>
-        <button id="startBtn" class="arcade-btn launch-btn">INICIAR MISSÃO</button>
+        <button id="hangarBackBtn" class="arcade-btn" type="button">VOLTAR AO MENU</button>
+        <button id="openShopBtn" class="arcade-btn gold-btn" type="button">UPGRADES</button>
+        <button id="openLeaderboardBtn" class="arcade-btn leader-btn" type="button">RECORDES</button>
+        <button id="startSurvivalBtn" class="arcade-btn launch-btn" type="button">INICIAR BATALHA</button>
       </div>
     </div>
 
-    <!-- MODAL LOJA DE GARAGEM (UPGRADE SHOP - 5 UPGRADES PERMANENTES) -->
+
+    <!-- 4. MODAL DE CONFIGURAÇÕES -->
+    <div id="settingsModal" class="screen-overlay hidden">
+      <h2 class="title-logo" style="font-size: 26px;">CONFIGURAÇÕES</h2>
+      <div class="subtitle-badge">PAINEL DE ÁUDIO & CONTROLES</div>
+
+      <div class="audio-settings-box" style="width: 100%; max-width: 420px; margin: 18px 0;">
+        <div class="section-title">OPÇÕES DE ÁUDIO TÁTICO</div>
+        <div class="setting-row">
+          <span>Trilha Sonora Synthwave</span>
+          <button id="settingsMusicBtn" class="diff-btn active" type="button">LIGADA</button>
+        </div>
+        <div class="setting-row">
+          <span>Efeitos Sonoros (SFX)</span>
+          <button id="settingsSfxBtn" class="diff-btn active" type="button">LIGADOS</button>
+        </div>
+        <div class="setting-row">
+          <span>Áudio Geral Master</span>
+          <button id="settingsAudioMasterBtn" class="diff-btn active" type="button">ATIVO</button>
+        </div>
+      </div>
+
+      <div class="info-card" style="width: 100%; max-width: 420px;">
+        <h4>ESQUEMA DE CONTROLES</h4>
+        <p><strong>Movimentação:</strong> Teclas W, A, S, D ou Setas Direcionais (ou Arraste por Toque)</p>
+        <p><strong>Tiro Primário:</strong> Barra de Espaço (ou Toque na tela)</p>
+        <p><strong>Giro de Esquiva (Barrel Roll):</strong> Shift Esquerdo (Invulnerabilidade momentânea)</p>
+        <p><strong>Habilidade Especial:</strong> Tecla Q</p>
+        <p><strong>Mísseis Guiados:</strong> Tecla K</p>
+        <p><strong>Super Bomba:</strong> Tecla X</p>
+        <p><strong>Foco Tático (Bullet Time):</strong> Tecla E</p>
+      </div>
+
+      <button id="closeSettingsBtn" class="arcade-btn" style="margin-top: 20px; padding: 12px 36px;" type="button">FECHAR</button>
+    </div>
+
+
+    <!-- 5. MODAL LOJA DE GARAGEM (UPGRADES PERMANENTES) -->
     <div id="shopScreen" class="screen-overlay hidden">
       <h2 class="title-logo" style="font-size: 26px;">UPGRADES</h2>
       <div class="subtitle-badge" style="background: linear-gradient(90deg, #ffa000, #ff6f00);">MELHORIAS PERMANENTES</div>
@@ -209,20 +250,20 @@
             <div class="shop-desc" id="armorUpgradeDesc">+15% de HP máximo por nível.</div>
             <div class="shop-level-pip" id="armorLevelPips"></div>
           </div>
-          <button id="buyArmorBtn" class="buy-btn">
+          <button id="buyArmorBtn" class="buy-btn" type="button">
             <span>UPGRADE</span>
             <small id="armorCostText">100 PTS</small>
           </button>
         </div>
 
-        <!-- Upgrade 2: Radiador de Alta Performance -->
+        <!-- Upgrade 2: Radiador de Alto Rendimento -->
         <div class="shop-card">
           <div class="shop-info">
             <div class="shop-name">RADIADOR DE ALTO RENDIMENTO</div>
             <div class="shop-desc" id="radiatorUpgradeDesc">-15% de acúmulo de calor da arma por disparo.</div>
             <div class="shop-level-pip" id="radiatorLevelPips"></div>
           </div>
-          <button id="buyRadiatorBtn" class="buy-btn">
+          <button id="buyRadiatorBtn" class="buy-btn" type="button">
             <span>UPGRADE</span>
             <small id="radiatorCostText">120 PTS</small>
           </button>
@@ -235,7 +276,7 @@
             <div class="shop-desc" id="ammoUpgradeDesc">+2 Mísseis e +1 Super Bomba de capacidade.</div>
             <div class="shop-level-pip" id="ammoLevelPips"></div>
           </div>
-          <button id="buyAmmoBtn" class="buy-btn">
+          <button id="buyAmmoBtn" class="buy-btn" type="button">
             <span>UPGRADE</span>
             <small id="ammoCostText">140 PTS</small>
           </button>
@@ -248,30 +289,31 @@
             <div class="shop-desc" id="thrustersUpgradeDesc">-0.4s de tempo de recarga do Barrel Roll.</div>
             <div class="shop-level-pip" id="thrustersLevelPips"></div>
           </div>
-          <button id="buyThrustersBtn" class="buy-btn">
+          <button id="buyThrustersBtn" class="buy-btn" type="button">
             <span>UPGRADE</span>
             <small id="thrustersCostText">150 PTS</small>
           </button>
         </div>
 
-        <!-- Upgrade 5: Íman de Moedas -->
+        <!-- Upgrade 5: Receptor Telemétrico (Ímã) -->
         <div class="shop-card">
           <div class="shop-info">
             <div class="shop-name">RECEPTOR TELEMÉTRICO DE PEÇAS</div>
             <div class="shop-desc" id="magnetUpgradeDesc">+40px no raio de atração magnética de ouro e itens.</div>
             <div class="shop-level-pip" id="magnetLevelPips"></div>
           </div>
-          <button id="buyMagnetBtn" class="buy-btn">
+          <button id="buyMagnetBtn" class="buy-btn" type="button">
             <span>UPGRADE</span>
             <small id="magnetCostText">80 PTS</small>
           </button>
         </div>
       </div>
 
-      <button id="closeShopBtn" class="arcade-btn" style="margin-top: 22px; padding: 10px 30px; font-size: 13px;">RETORNAR AO HANGAR</button>
+      <button id="closeShopBtn" class="arcade-btn" style="margin-top: 22px; padding: 10px 30px; font-size: 13px;" type="button">RETORNAR</button>
     </div>
 
-    <!-- MODAL DE RECORDES (TOP 5 LEADERBOARD) -->
+
+    <!-- 6. MODAL DE RECORDES (TOP 5 LEADERBOARD) -->
     <div id="leaderboardModal" class="screen-overlay hidden">
       <h2 class="title-logo" style="font-size: 26px; color: #00FF00;">RECORDES TOP GUN</h2>
       <div class="subtitle-badge" style="background: linear-gradient(90deg, #00FF00, #00b0ff); color: #000; font-weight: 900;">MODO SOBREVIVÊNCIA</div>
@@ -293,13 +335,15 @@
         </table>
       </div>
 
-      <button id="closeLeaderboardBtn" class="arcade-btn" style="margin-top: 25px; padding: 10px 30px; font-size: 13px;">FECHAR [ESC]</button>
+      <button id="closeLeaderboardBtn" class="arcade-btn" style="margin-top: 25px; padding: 10px 30px; font-size: 13px;" type="button">FECHAR</button>
     </div>
 
-    <!-- TELA DE TRANSIÇÃO ENTRE ESTÁGIOS DA CAMPANHA (STAGE CLEAR) -->
+
+    <!-- 7. TELA DE CONCLUSÃO DE FASE DA CAMPANHA (FASES 1 A 5) -->
+    <!-- REGRA OBRIGATÓRIA: APENAS UMA OPÇÃO DE NAVEGAÇÃO "Voltar ao Menu do Modo História" -->
     <div id="stageClearScreen" class="screen-overlay hidden">
       <h2 class="title-logo" style="font-size: 28px; color: #00e5ff;">ESTÁGIO CONCLUÍDO!</h2>
-      <div id="stageClearSubtitle" class="subtitle-badge" style="background: linear-gradient(90deg, #00e5ff, #0077b6);">SETOR 1 NEUTRALIZADO</div>
+      <div id="stageClearSubtitle" class="subtitle-badge" style="background: linear-gradient(90deg, #00e5ff, #0077b6);">SETOR NEUTRALIZADO</div>
 
       <div class="stage-stats-card">
         <div class="stage-stat-row">
@@ -320,52 +364,75 @@
         </div>
       </div>
 
+      <!-- Destaque de Desbloqueio Conquistado -->
+      <div id="stageUnlockBox" class="stage-unlock-card hidden">
+        <div class="stage-unlock-badge">NOVO DESBLOQUEIO CONQUISTADO!</div>
+        <div id="stageUnlockText" class="stage-unlock-title">MiG-28 DESBLOQUEADO NO MODO INFINITO!</div>
+      </div>
+
       <div class="briefing-box">
         <div class="briefing-header">COMUNICADO DO QUARTEL-GENERAL [HQ]</div>
         <p id="nextStageBriefingText" class="briefing-text">
-          Excelente execução tática, piloto! Reabastecimento concluído. Prepare-se para decolar em direção ao próximo setor.
+          Excelente execução tática, piloto! Setor seguro. Retorne ao Centro Tático para acessar a próxima missão.
         </p>
       </div>
 
-      <div style="display: flex; gap: 10px; margin-top: 18px; width: 100%; max-width: 380px; justify-content: center;">
-        <button id="stageClearShopBtn" class="arcade-btn gold-btn" style="padding: 11px 18px; font-size: 12px;">MELHORIAS NO HANGAR</button>
-        <button id="nextStageBtn" class="arcade-btn" style="padding: 11px 24px; font-size: 13px;">PRÓXIMO ESTÁGIO</button>
+      <!-- ÚNICA OPÇÃO DE NAVEGAÇÃO CONFORME EXIGIDO -->
+      <div style="margin-top: 22px; width: 100%; max-width: 380px; display: flex; justify-content: center;">
+        <button id="stageClearBackToStoryBtn" class="arcade-btn launch-btn" style="width: 100%; padding: 14px 20px; font-size: 13px;" type="button">Voltar ao Menu do Modo História</button>
       </div>
     </div>
 
-    <!-- TELA DE VITÓRIA DA CAMPANHA (CAMPAIGN VICTORY - 5 ESTÁGIOS CONCLUÍDOS) -->
-    <div id="victoryScreen" class="screen-overlay hidden">
-      <div style="font-size: 20px; font-weight: 900; color: #00FF00; margin-top: 10px; font-family: monospace;">[ CONDECORAÇÃO MÁXIMA TOP GUN ]</div>
-      <h2 class="title-logo" style="font-size: 28px; color: #00FF00; text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);">VITÓRIA DA CAMPANHA!</h2>
-      <div class="subtitle-badge" style="background: linear-gradient(90deg, #00FF00, #00b0ff); color: #000; font-weight: 900;">MISSÃO CUMPRIDA - ÁS DOS CÉUS</div>
 
-      <p style="color: #b0bec5; font-size: 13px; max-width: 420px; margin-bottom: 14px;">
-        O Bombardeiro Chefe B-2 Spirit foi abatido! A soberania aérea mundial foi restaurada pelo seu esquadrão!
-      </p>
+    <!-- 8. TELA DE RESULTADOS DA FASE 6 BÔNUS (ESTRATOSFERA) -->
+    <!-- RESULTADO DO VOO DE SOBREVIVÊNCIA E RECORDES HIPERSÔNICOS -->
+    <div id="fase6ResultsScreen" class="screen-overlay hidden">
+      <div style="font-size: 14px; font-weight: 900; color: #00e5ff; margin-top: 6px; letter-spacing: 2px;">[ MISSÃO HIPERSÔNICA BÔNUS ]</div>
+      <h2 class="title-logo" style="font-size: 26px; color: #45e9f6; text-shadow: 0 0 20px rgba(69, 233, 246, 0.8);">RELATÓRIO DA ESTRATOSFERA</h2>
+      <div id="fase6ResultSubtitle" class="subtitle-badge" style="background: linear-gradient(90deg, #18ffff, #00b0ff); color: #000; font-weight: 900;">VOO ENCERRADO</div>
 
-      <div class="victory-honor-card">
-        <div style="color: #ffd54f; font-size: 14px; font-weight: 900; margin-bottom: 6px;">HONRA AO MÉRITO MILITAR</div>
-        <div style="font-size: 22px; font-weight: 900; color: #00e676;">+1.500 PEÇAS DE OURO</div>
+      <!-- Banner de Conquista do Darkstar -->
+      <div id="fase6DarkstarBadge" class="stage-unlock-card">
+        <div class="stage-unlock-badge">AERONAVE CONQUISTADA!</div>
+        <div class="stage-unlock-title">DARKSTAR DESBLOQUEADO NO MODO INFINITO!</div>
       </div>
 
-      <div class="stats-grid" style="margin-bottom: 16px;">
+      <div class="stats-grid" style="margin-bottom: 14px;">
         <div class="stat-box">
-          <div class="stat-label">Pontuação Final</div>
-          <div id="victoryFinalScore" class="stat-value" style="color: #00e5ff;">0</div>
+          <div class="stat-label">Distância Percorrida</div>
+          <div id="fase6DistanceText" class="stat-value" style="color: #00e5ff;">0.0 KM</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Total Inimigos Abatidos</div>
-          <div id="victoryTotalKills" class="stat-value">0</div>
+          <div class="stat-label">Tempo de Sobrevivência</div>
+          <div id="fase6TimeText" class="stat-value" style="color: #ffca28;">00:00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Velocidade Máxima</div>
+          <div id="fase6SpeedText" class="stat-value" style="color: #ff9100;">MACH 6.0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Pontuação do Voo</div>
+          <div id="fase6ScoreText" class="stat-value" style="color: #00e676;">0</div>
         </div>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 10px; width: 260px; margin-bottom: 20px;">
-        <button id="victoryContinueInfiniteBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: linear-gradient(135deg, #00e676, #00b0ff);">MODO INFINITO</button>
-        <button id="victoryHangarBtn" class="arcade-btn gold-btn" style="padding: 12px; font-size: 13px;">RETORNAR AO HANGAR</button>
+      <div class="stage-stat-row" style="background: rgba(4, 19, 30, 0.8); border: 1px solid rgba(35, 217, 238, 0.3); padding: 8px 14px; border-radius: 3px; max-width: 380px; width: 100%; margin-bottom: 14px;">
+        <span style="color: #ffd54f;">Recorde Pessoal de Distância:</span>
+        <span id="fase6RecordText" style="color: #ffd54f; font-weight: bold;">0.0 KM</span>
+      </div>
+
+      <div id="fase6NewRecordAlert" class="new-record-banner hidden">
+        ★ NOVO RECORDE HIPERSÔNICO REGISTRADO! ★
+      </div>
+
+      <!-- ÚNICA OPÇÃO DE NAVEGAÇÃO -->
+      <div style="margin-top: 14px; width: 100%; max-width: 380px; display: flex; justify-content: center;">
+        <button id="fase6BackToStoryBtn" class="arcade-btn launch-btn" style="width: 100%; padding: 14px 20px; font-size: 13px;" type="button">Voltar ao Menu do Modo História</button>
       </div>
     </div>
 
-    <!-- TELA DE PAUSE -->
+
+    <!-- 9. TELA DE PAUSE -->
     <div id="pauseScreen" class="screen-overlay hidden">
       <h2 class="title-logo" style="font-size: 30px;">MISSÃO PAUSADA</h2>
       <p style="color: #90a4ae; margin-bottom: 14px;">Voo tático em espera.</p>
@@ -375,11 +442,11 @@
         <div class="section-title" style="font-size: 11px;">CONFIGURAÇÕES DE ÁUDIO TÁTICO</div>
         <div class="setting-row">
           <span>Trilha Sonora Synthwave</span>
-          <button id="toggleMusicBtn" class="diff-btn active" style="padding: 4px 10px;">LIGADA</button>
+          <button id="toggleMusicBtn" class="diff-btn active" style="padding: 4px 10px;" type="button">LIGADA</button>
         </div>
         <div class="setting-row">
           <span>Efeitos Sonoros (SFX)</span>
-          <button id="toggleSfxBtn" class="diff-btn active" style="padding: 4px 10px;">LIGADOS</button>
+          <button id="toggleSfxBtn" class="diff-btn active" style="padding: 4px 10px;" type="button">LIGADOS</button>
         </div>
       </div>
 
@@ -389,14 +456,15 @@
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 10px; width: 240px;">
-        <button id="resumeBtn" class="arcade-btn" style="padding: 12px; font-size: 13px;">CONTINUAR MISSÃO</button>
-        <button id="pauseShopBtn" class="arcade-btn gold-btn" style="padding: 12px; font-size: 13px;">UPGRADES</button>
-        <button id="restartPauseBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);">REINICIAR</button>
-        <button id="quitMenuBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: #37474f;">MENU PRINCIPAL</button>
+        <button id="resumeBtn" class="arcade-btn" style="padding: 12px; font-size: 13px;" type="button">CONTINUAR MISSÃO</button>
+        <button id="pauseShopBtn" class="arcade-btn gold-btn" style="padding: 12px; font-size: 13px;" type="button">UPGRADES</button>
+        <button id="restartPauseBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);" type="button">REINICIAR</button>
+        <button id="quitMenuBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: #37474f;" type="button">MENU PRINCIPAL</button>
       </div>
     </div>
 
-    <!-- TELA DE GAME OVER -->
+
+    <!-- 10. TELA DE GAME OVER -->
     <div id="gameOverScreen" class="screen-overlay hidden">
       <h2 class="title-logo" style="color: #ff1744; text-shadow: 0 0 25px rgba(255,23,68,0.8);">MISSÃO FALHOU</h2>
       <div class="subtitle-badge" style="background: #37474f; margin-bottom: 16px;">CAÇA ABATIDO EM COMBATE</div>
@@ -420,16 +488,17 @@
         </div>
       </div>
 
-      <p style="color: #90a4ae; font-size: 11px; margin-bottom: 14px;">
-        AVISO: Os upgrades e o ouro do hangar foram preservados. Na campanha, a missão recomeça no Estágio 1.
+      <p class="game-over-footnote">
+        Os upgrades e o ouro do hangar foram preservados.
       </p>
 
       <div style="display: flex; flex-direction: column; gap: 10px; width: 240px; margin-bottom: 20px;">
-        <button id="restartBtn" class="arcade-btn" style="padding: 12px; font-size: 13px;">JOGAR NOVAMENTE</button>
-        <button id="gameOverShopBtn" class="arcade-btn gold-btn" style="padding: 12px; font-size: 13px;">MELHORAR NO HANGAR</button>
-        <button id="gameOverMenuBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: #37474f;">MENU PRINCIPAL</button>
+        <button id="restartBtn" class="arcade-btn" style="padding: 12px; font-size: 13px;" type="button">JOGAR NOVAMENTE</button>
+        <button id="gameOverShopBtn" class="arcade-btn gold-btn" style="padding: 12px; font-size: 13px;" type="button">MELHORAR NO HANGAR</button>
+        <button id="gameOverMenuBtn" class="arcade-btn" style="padding: 12px; font-size: 13px; background: #37474f;" type="button">MENU PRINCIPAL</button>
       </div>
     </div>
+
   </div>
 
   <script src="script.js"></script>

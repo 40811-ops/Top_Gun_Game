@@ -362,7 +362,7 @@ canvas {
   font-family: 'Courier New', monospace;
 }
 
-#startScreen, #pauseScreen, #gameOverScreen, #shopScreen, #leaderboardModal, #stageClearScreen, #victoryScreen {
+#startScreen, #hangarScreen, #settingsModal, #fase6ResultsScreen, #pauseScreen, #gameOverScreen, #shopScreen, #leaderboardModal, #stageClearScreen, #victoryScreen {
   background: rgba(5, 12, 10, 0.9);
   border: 2px solid #00FF00;
   box-shadow: 0 0 10px #00FF00;
@@ -1221,44 +1221,142 @@ canvas {
 #startScreen .title-logo { color: #45e9f6; text-shadow: 0 0 18px rgba(35,217,238,.55); letter-spacing: 8px; margin-top: 2px; font-size: clamp(30px, 5vw, 44px); }
 #startScreen .subtitle-badge { background: rgba(13,119,145,.17); border: 1px solid rgba(35,217,238,.45); color: #7cecf5; box-shadow: none; letter-spacing: 3px; margin-bottom: 9px; }
 #startScreen .currency-display { align-self: flex-end; margin: -42px 0 8px; background: rgba(5,30,43,.72); border-color: rgba(35,217,238,.35); color: #8cecf5; box-shadow: none; }
-#startScreen .mode-select-container, #startScreen .difficulty-container { max-width: 720px; margin-bottom: 9px; }
-#startScreen .section-title { color: #67dbe8; letter-spacing: 2px; font-size: 10px; }
-#startScreen .mode-grid { gap: 8px; }
-#startScreen .mode-btn, #startScreen .diff-btn { background: rgba(5,25,38,.78); border: 1px solid rgba(53,165,188,.35); border-radius: 3px; color: #9bbdc8; box-shadow: none; }
-#startScreen .mode-btn.active { border-color: #26d9ec; background: rgba(12,118,143,.24); color: #8cf4ff; box-shadow: inset 0 0 18px rgba(35,217,238,.08); }
-#startScreen .mode-btn-desc { display: none; }
-#startScreen .mode-btn-title { font-size: 11px; letter-spacing: 1.2px; }
-#startScreen .diff-btn { padding: 7px 4px; }
-#startScreen .diff-btn small { display: none; }
-#startScreen .diff-btn.active { border-color: #ff8067; background: rgba(255,118,92,.10); color: #ff9b84; box-shadow: none; }
-#startScreen .garage-section { max-width: 760px; margin-bottom: 8px; padding: 8px 10px 10px; background: rgba(4,19,30,.76); border-color: rgba(35,217,238,.25); border-radius: 3px; }
-#startScreen .garage-section::before { background: linear-gradient(90deg, transparent, #23d9ee, #ff765c, #23d9ee, transparent); }
-#startScreen .garage-title { color: #8debf3 !important; }
-#startScreen .garage-subtitle { color: #5d9da9; letter-spacing: 1.4px; }
-#startScreen .garage-carousel { gap: 8px; }
-#startScreen .plane-card { background: rgba(5,28,41,.72); border: 1px solid rgba(35,217,238,.19); border-radius: 3px; box-shadow: none; }
-#startScreen .plane-card::after { display: none; }
-#startScreen .plane-card.active { border-color: #ff8067; background: rgba(11,73,87,.52); box-shadow: 0 0 15px rgba(35,217,238,.11), inset 0 0 18px rgba(35,217,238,.05); }
-#startScreen .plane-sprite-image { filter: drop-shadow(0 0 7px rgba(35,217,238,.25)); }
-#startScreen .plane-card.active .plane-sprite-image { filter: drop-shadow(0 0 9px rgba(255,118,92,.38)); }
-#startScreen .plane-designation { color: #c9f7fb; font-size: 10px; letter-spacing: .7px; }
-#startScreen .plane-role-tag { color: #76aeb9; background: transparent; border-color: rgba(35,217,238,.2); font-size: 8px; }
-#startScreen .fighter-details-card { max-width: 760px; padding: 8px 12px; margin: 0 auto 8px; background: rgba(4,19,30,.7); border: 1px solid rgba(35,217,238,.22); box-shadow: none; }
-#startScreen .fighter-header { margin-bottom: 5px; }
-#startScreen .fighter-special-badge { border-color: rgba(255,118,92,.45); color: #ff9b84; }
-#startScreen .stat-bars-container { display: grid; grid-template-columns: auto minmax(40px,1fr) auto minmax(40px,1fr) auto minmax(40px,1fr); align-items: center; gap: 6px; }
-#startScreen .stat-bar-label { font-size: 9px; white-space: nowrap; }
-#startScreen .stat-bar-track { height: 4px; }
-#startScreen .fighter-desc { display: none !important; }
-#startScreen .info-card { display: block !important; width: min(760px, 100%); margin: 0 auto 8px; padding: 8px 12px; text-align: left; background: rgba(4,19,30,.78); border: 1px solid rgba(35,217,238,.22); color: #a9dce3; font-size: 10px; line-height: 1.5; }
-#startScreen .info-card h4 { margin: 0 0 4px; color: #67dbe8; font-size: 10px; letter-spacing: 1.5px; }
-#startScreen .info-card p { margin: 2px 0; }
-#startScreen .info-card .tip-note { color: #ff9b84; }
-#startScreen .menu-action-buttons { max-width: 760px; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1.35fr; gap: 8px; margin-top: 2px; }
-#startScreen .menu-action-buttons .arcade-btn { margin: 0; min-height: 40px; padding: 10px 8px; font-size: 10px; letter-spacing: .7px; border-radius: 3px; box-shadow: none; }
-#startScreen .launch-btn { background: linear-gradient(100deg, #ff765c, #df4f43) !important; border: 1px solid #ff9b84 !important; color: #fff !important; }
+#startScreen .currency-display, #hangarScreen .currency-display { align-self: flex-end; margin: -42px 0 8px; background: rgba(5,30,43,.72); border-color: rgba(35,217,238,.35); color: #8cecf5; box-shadow: none; }
 
-/* Correção de inicialização: o menu precisa cobrir a arena no carregamento. */
+/* ===== 3 OPÇÕES EXCLUSIVAS DO MENU PRINCIPAL ===== */
+.main-menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 420px;
+  margin: 32px auto auto;
+  z-index: 10;
+}
+
+.main-menu-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 20px;
+  background: rgba(5, 25, 38, 0.88);
+  border: 1.5px solid rgba(35, 217, 238, 0.45);
+  border-radius: 4px;
+  color: #8cf4ff;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(35, 217, 238, 0.08);
+}
+
+.main-menu-btn:hover {
+  border-color: #00ff41;
+  color: #00ff41;
+  background: rgba(8, 42, 58, 0.95);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.3), inset 0 0 16px rgba(0, 255, 65, 0.12);
+  transform: translateY(-2px);
+}
+
+.main-menu-btn:active {
+  transform: translateY(1px);
+}
+
+.main-menu-btn-title {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.main-menu-btn-desc {
+  font-size: 10px;
+  color: #7fa6b1;
+  letter-spacing: 0.8px;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.menu-footer-badge {
+  margin-top: auto;
+  margin-bottom: 8px;
+  font-size: 9px;
+  color: #5d8a96;
+  letter-spacing: 1.5px;
+}
+
+/* ===== HANGAR DO MODO INFINITO ===== */
+#hangarScreen {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 105 !important;
+  overflow-y: auto;
+  padding: 18px 20px 20px;
+}
+
+#hangarScreen .title-logo { color: #45e9f6; text-shadow: 0 0 18px rgba(35,217,238,.55); letter-spacing: 8px; margin-top: 2px; font-size: clamp(26px, 4vw, 36px); }
+#hangarScreen .subtitle-badge { background: rgba(13,119,145,.17); border: 1px solid rgba(35,217,238,.45); color: #7cecf5; box-shadow: none; letter-spacing: 3px; margin-bottom: 9px; }
+#hangarScreen .difficulty-container { max-width: 720px; width: 100%; margin-bottom: 9px; }
+#hangarScreen .section-title { color: #67dbe8; letter-spacing: 2px; font-size: 10px; }
+#hangarScreen .diff-btn { background: rgba(5,25,38,.78); border: 1px solid rgba(53,165,188,.35); border-radius: 3px; color: #9bbdc8; box-shadow: none; padding: 7px 4px; }
+#hangarScreen .diff-btn small { display: none; }
+#hangarScreen .diff-btn.active { border-color: #ff8067; background: rgba(255,118,92,.10); color: #ff9b84; box-shadow: none; }
+
+#hangarScreen .garage-section { max-width: 760px; width: 100%; margin-bottom: 8px; padding: 8px 10px 10px; background: rgba(4,19,30,.76); border-color: rgba(35,217,238,.25); border-radius: 3px; }
+#hangarScreen .garage-section::before { background: linear-gradient(90deg, transparent, #23d9ee, #ff765c, #23d9ee, transparent); }
+#hangarScreen .garage-title { color: #8debf3 !important; }
+#hangarScreen .garage-subtitle { color: #5d9da9; letter-spacing: 1.4px; }
+#hangarScreen .garage-carousel { gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+
+#hangarScreen .plane-card { background: rgba(5,28,41,.72); border: 1px solid rgba(35,217,238,.19); border-radius: 3px; box-shadow: none; flex-shrink: 0; min-width: 90px; }
+#hangarScreen .plane-card::after { display: none; }
+#hangarScreen .plane-card.active { border-color: #ff8067; background: rgba(11,73,87,.52); box-shadow: 0 0 15px rgba(35,217,238,.11), inset 0 0 18px rgba(35,217,238,.05); }
+#hangarScreen .plane-sprite-image { filter: drop-shadow(0 0 7px rgba(35,217,238,.25)); }
+#hangarScreen .plane-sprite-image.flip-y { transform: scaleY(-1); }
+#hangarScreen .plane-card.active .plane-sprite-image { filter: drop-shadow(0 0 9px rgba(255,118,92,.38)); }
+#hangarScreen .plane-card.active .plane-sprite-image.flip-y { transform: scaleY(-1); filter: drop-shadow(0 0 9px rgba(255,118,92,.38)); }
+
+/* Caça Bloqueado */
+.plane-card.locked {
+  opacity: 0.45;
+  filter: grayscale(0.85);
+  cursor: not-allowed !important;
+  position: relative;
+}
+.plane-card.locked::before {
+  content: '🔒';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 13px;
+  z-index: 5;
+}
+.plane-card.locked .plane-role-tag {
+  color: #ff765c !important;
+  border-color: rgba(255,118,92,0.4) !important;
+}
+
+#hangarScreen .plane-designation { color: #c9f7fb; font-size: 10px; letter-spacing: .7px; }
+#hangarScreen .plane-role-tag { color: #76aeb9; background: transparent; border-color: rgba(35,217,238,.2); font-size: 8px; }
+
+#hangarScreen .fighter-details-card { max-width: 760px; width: 100%; padding: 8px 12px; margin: 0 auto 8px; background: rgba(4,19,30,.7); border: 1px solid rgba(35,217,238,.22); box-shadow: none; }
+#hangarScreen .fighter-header { margin-bottom: 5px; }
+#hangarScreen .fighter-special-badge { border-color: rgba(255,118,92,.45); color: #ff9b84; }
+#hangarScreen .stat-bars-container { display: grid; grid-template-columns: auto minmax(40px,1fr) auto minmax(40px,1fr) auto minmax(40px,1fr); align-items: center; gap: 6px; }
+#hangarScreen .stat-bar-label { font-size: 9px; white-space: nowrap; }
+#hangarScreen .stat-bar-track { height: 4px; }
+#hangarScreen .fighter-desc { font-size: 10px; line-height: 1.4; color: #a5d8e2; margin-top: 4px; }
+
+#hangarScreen .info-card { display: block !important; width: min(760px, 100%); margin: 0 auto 8px; padding: 8px 12px; text-align: left; background: rgba(4,19,30,.78); border: 1px solid rgba(35,217,238,.22); color: #a9dce3; font-size: 10px; line-height: 1.5; }
+#hangarScreen .info-card h4 { margin: 0 0 4px; color: #67dbe8; font-size: 10px; letter-spacing: 1.5px; }
+#hangarScreen .info-card p { margin: 2px 0; }
+
+#hangarScreen .menu-action-buttons { max-width: 760px; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr 1.35fr; gap: 8px; margin-top: 2px; }
+#hangarScreen .menu-action-buttons .arcade-btn { margin: 0; min-height: 40px; padding: 10px 6px; font-size: 10px; letter-spacing: .7px; border-radius: 3px; box-shadow: none; }
+#hangarScreen .launch-btn { background: linear-gradient(100deg, #ff765c, #df4f43) !important; border: 1px solid #ff9b84 !important; color: #fff !important; }
+
+/* Modais e Telas Z-Index */
 #startScreen {
   position: absolute !important;
   inset: 0 !important;
@@ -1266,9 +1364,110 @@ canvas {
   height: 100% !important;
   z-index: 100 !important;
 }
-#startScreen.hidden { display: none !important; }
-
-/* Modais funcionais acima do menu e da arena */
+#startScreen.hidden, #hangarScreen.hidden, #settingsModal.hidden, #fase6ResultsScreen.hidden { display: none !important; }
+#settingsModal { z-index: 135 !important; }
 #shopScreen, #leaderboardModal { z-index: 140 !important; }
-#startScreen { z-index: 100 !important; }
 #gameCanvas { display: block; }
+
+/* Menu de seleção de fases da campanha */
+.mission-list { width:100%; max-width:460px; display:grid; grid-template-columns:1fr; gap:8px; margin:14px 0; }
+.mission-card { display:flex; flex-direction:column; align-items:flex-start; gap:4px; text-align:left; padding:12px 14px; background:rgba(5,25,38,.9); color:#d9faff; border:1px solid rgba(35,217,238,.45); border-radius:3px; font-family:'Courier New',monospace; cursor:pointer; }
+.mission-card strong { color:#8cf4ff; font-size:13px; letter-spacing:.5px; }
+.mission-card small,.mission-number { font-size:10px; color:#7fa6b1; }
+.mission-card.active { border-color:#00ff41; box-shadow:inset 0 0 16px rgba(0,255,65,.12); }
+.mission-card.active strong { color:#00ff41; }
+.mission-card.locked { opacity:.42; cursor:not-allowed; filter:grayscale(.6); }
+.mission-card.completed { border-color: rgba(0, 230, 118, 0.6); background: rgba(3, 30, 20, 0.85); box-shadow: inset 0 0 12px rgba(0, 230, 118, 0.08); }
+.mission-card.completed strong { color: #69f0ae; }
+.mission-card.completed .mission-number { color: #00e676; font-weight: bold; }
+.mission-card.bonus { border-color: #ffd700; background: rgba(30, 22, 5, 0.9); }
+.mission-card.bonus strong { color: #ffe066; }
+.mission-card.bonus.active { border-color: #00e5ff; box-shadow: 0 0 16px rgba(0, 229, 255, 0.35); }
+.mission-card.bonus .mission-number { color: #ffd700; font-weight: 900; }
+.mission-actions { display:flex; justify-content:center; flex-wrap:wrap; gap:10px; }
+.mission-footnote { max-width:420px; color:#8aa8b1; font:10px 'Courier New',monospace; text-align:center; line-height:1.5; margin:12px 0 20px; }
+#missionSelectScreen { z-index:115; overflow-y:auto; justify-content:flex-start; padding-top:22px; }
+#launchSelectedMissionBtn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* Briefing contextual da campanha */
+.mission-briefing {
+  width: min(680px, calc(100% - 28px));
+  max-height: 30vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  margin: 10px auto 12px;
+  padding: 10px 14px;
+  border: 1px solid #ff6a24;
+  border-left: 4px solid #ff3b22;
+  border-radius: 8px;
+  background: rgba(8, 10, 18, 0.94);
+  color: #f5edcf;
+  text-align: left;
+  box-shadow: 0 0 18px rgba(255, 70, 30, 0.12);
+}
+.mission-briefing h3 { margin: 0 0 6px; color: #ff9b2f; text-transform: uppercase; font-size: clamp(14px, 2.2vw, 18px); }
+.mission-briefing p { margin: 4px 0; line-height: 1.3; font-size: clamp(11px, 1.5vw, 13px); overflow-wrap: anywhere; }
+.mission-briefing strong { color: #ffb14a; }
+
+/* Cards e Badges de Desbloqueio Conquistado */
+.stage-unlock-card {
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(0, 229, 255, 0.12));
+  border: 1.5px solid #ffd700;
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin: 12px auto;
+  text-align: center;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.25);
+  animation: unlockGlow 2s infinite alternate;
+}
+
+@keyframes unlockGlow {
+  0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+  100% { box-shadow: 0 0 24px rgba(255, 215, 0, 0.5); }
+}
+
+.stage-unlock-badge {
+  font-size: 11px;
+  font-weight: 900;
+  color: #ffd700;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.stage-unlock-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #00e5ff;
+  letter-spacing: 1px;
+}
+
+.new-record-banner {
+  background: rgba(255, 153, 0, 0.2);
+  border: 1px solid #ff9900;
+  color: #ffca28;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 6px 12px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 8px rgba(255, 153, 0, 0.5);
+}
+
+.game-over-footnote {
+  color: #90a4ae;
+  font-size: 11px;
+  margin-bottom: 14px;
+  max-width: 380px;
+  line-height: 1.4;
+}
+
+@media (max-height: 700px) {
+  #missionSelectScreen { padding-top: 10px; }
+  .mission-briefing { max-height: 24vh; margin: 6px auto; padding: 8px 12px; }
+  .mission-briefing p { margin: 3px 0; }
+  .main-menu-container { margin: 16px auto auto; gap: 10px; }
+  .main-menu-btn { padding: 12px 16px; }
+}
